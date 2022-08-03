@@ -22,13 +22,13 @@
 import { mapState } from 'vuex';
 export default {
 	computed: {
-		...mapState(["yun"])
+		...mapState(['yun'])
 	},
-	methods:{
+	methods: {
 		LiuMonthClick(index) {
-			uni.$store.commit('yun/set', { month_index: index });
-			uni.$store.commit('yun/resolveLiuMonth');
-		},
+			uni.$store.commit('yun/set', { month_index: index, day_index: 0 });
+			uni.$store.commit('yun/resolveLiuDay');
+		}
 	}
 };
 </script>

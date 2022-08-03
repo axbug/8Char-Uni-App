@@ -22,13 +22,13 @@
 import { mapState } from 'vuex';
 export default {
 	computed: {
-		...mapState(["yun"])
+		...mapState(['yun'])
 	},
-	methods:{
+	methods: {
 		DaYunClick(index) {
-			uni.$store.commit('yun/set', { current_index: index });
-			uni.$store.commit('yun/resolveDaYun');
-		},
+			uni.$store.commit('yun/set', { current_index: index, year_index: 0 });
+			uni.$store.commit('yun/resolveLiuYear');
+		}
 	}
 };
 </script>

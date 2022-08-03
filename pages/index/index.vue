@@ -1,6 +1,6 @@
 <template>
 	<view class="content">
-		<view class="img-box"><image src="@/static/logo.png" class="img" /></view>
+		<view class="img-box"><image src="@/static/logo.svg" class="img" /></view>
 
 		<view class="box yx-theme-background-color">
 			<view class="realname">
