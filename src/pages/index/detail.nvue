@@ -1,0 +1,58 @@
+<template>
+	<tm-app>
+		<yx-nav-header></yx-nav-header>
+
+		<tm-sheet :round="3" :shadow="2" :margin="[20, 20]" :padding="[10, 10]">
+			<view class="flex flex-wrap px-20 py-10">
+				<view style="width: 45%;">
+					<view><tm-text :label="'姓名：' + user_store.realname" _class="text-overflow-1"></tm-text></view>
+					<view><tm-text :label="'生肖：' + GetChineseZodiac(bazi_store.solar.year)"></tm-text></view>
+					<view><tm-text :label="'性别：靓' + (user_store.gender ? '仔' : '女')"></tm-text></view>
+				</view>
+				<view style="width: 55%;">
+					<view><tm-text :label="'阴历：' + bazi_store.yinli"></tm-text></view>
+					<view><tm-text :label="'阳历：' + utils.HideSecond(user_store.timestamp)"></tm-text></view>
+					<view><tm-text :label="'星座：' + bazi_store.xinzuo + '座'"></tm-text></view>
+				</view>
+			</view>
+		</tm-sheet>
+
+		<tm-sheet :round="3" :shadow="2" :margin="[20, 0]" :padding="[10, 10]">
+			<yx-detail-table></yx-detail-table>
+			<view class="px-20 py-30">
+				<tm-text :label="'起运：' + GetStartYunLabel()"></tm-text>
+				<tm-text :label="'起运公历：' + bazi_store.start_yun.solar"></tm-text>
+			</view>
+		</tm-sheet>
+		
+		<yx-yun-scroll-list></yx-yun-scroll-list>
+	</tm-app>
+</template>
+
+<script lang="ts" setup>
+import { useBaziStore } from '@/store/bazi.ts';
+import { useUserStore } from '@/store/user.ts';
+import utils from '@/tool/utils.ts';
+
+const bazi_store = useBaziStore();
+const user_store = useUserStore();
+
+if (user_store.timestamp === null) {
+	uni.redirectTo({
+		url: '/pages/index/index'
+	});
+}
+
+function GetStartYunLabel() {
+	let str = '出生后';
+	const { start_yun } = bazi_store;
+	if (start_yun.year) str += start_yun.year + '年';
+	if (start_yun.month) str += start_yun.month + '月';
+	if (start_yun.day) str += start_yun.day + '日';
+	if (start_yun.hour) str += start_yun.hour + '时';
+	str += '后起运';
+	return str;
+}
+
+const GetChineseZodiac = year => utils.GetChineseZodiac(year);
+</script>

@@ -1,0 +1,226 @@
+<template>
+  <view class="relative overflow">
+    <tm-sheet @click="cellClick" :color="props.color" :followTheme="props.followTheme" :dark="props.dark"
+      :followDark="props.followDark" :round="props.round" :shadow="props.shadow" :outlined="props.outlined"
+      :border="props.border" :borderStyle="props.borderStyle" :borderDirection="props.borderDirection"
+      :text="props.text" :transprent="props.transprent" :linear="props.linear" :linearDeep="props.linearDeep"
+      :width="props.width" :height="props.height" :margin="props.margin" :padding="props.padding"
+	  :_class="props._class"
+	  :_style="props._style"
+      hover-class="opacity-6">
+      <view :userInteractionEnabled="true" class="flex flex-row flex-row-center-center"
+        :class="[_computedValue.url ? 'url' : '']">
+        <view v-if="_computedValue.showAvatar" :style="{
+          width: `${_computedValue.avatarSize}rpx`,
+          height: `${_computedValue.avatarSize}rpx`,
+        }" class="flex flex-row flex-row-center-center">
+          <slot name="avatar">
+            <tm-image :round="_computedValue.avatarRound" :width="_computedValue.avatarSize"
+              :height="_computedValue.avatarSize" :src="_computedValue.avatar"></tm-image>
+
+          </slot>
+        </view>
+
+
+        <view class="flex-3" style="width: 0px">
+          <view class="flex flex-5 flex-col" :class="[_computedValue.showAvatar ? 'pl-24' : '']">
+            <slot name="title">
+              <tm-text :fontSize="_computedValue.titleFontSize" :label="_computedValue.title"></tm-text>
+            </slot>
+            <slot name="label">
+              <view v-if="_computedValue.label" class="mt-6">
+                <tm-text :color="_computedValue.labelColor" :fontSize="22" :label="_computedValue.label"></tm-text>
+              </view>
+            </slot>
+          </view>
+        </view>
+        <view class="flex-1 flex-row flex-row-center-end" style="width: 0px">
+          <view class="flex flex-1 flex-row flex-row-center-end pr-12">
+            <slot name="rightText">
+              <tm-text :color="_computedValue.rightColor" v-if="_computedValue.rightText" :fontSize="_computedValue.rightTextSize"
+                :label="_computedValue.rightText"></tm-text>
+            </slot>
+          </view>
+          <slot name="right">
+            <tm-icon v-if="_computedValue.rightIcon" _class="opacity-3" :name="_computedValue.rightIcon" :fontSize="22">
+            </tm-icon>
+          </slot>
+        </view>
+      </view>
+    </tm-sheet>
+    <tm-divider v-if="_computedValue.bottomBorder" :margin="[0, 0]" :style="{
+      left: `${_computedValue.avatar !== ''
+          ? _computedValue.avatarSize + _computedValue.margin[0]
+          : 0
+        }rpx`,
+    }"></tm-divider>
+  </view>
+</template>
+
+<script lang="ts" setup>
+/**
+   * 单元格
+   * @description 常用于列表
+   * @example 示例
+   * <tm-sheet :round="8" :padding="[0,0]">
+      <tm-cell :bottomBorder="false" title="这是标题"></tm-cell>
+      <tm-cell :bottomBorder="false"  title="这是标题"></tm-cell>
+      <tm-cell  :bottomBorder="false" title="这是标题"></tm-cell>
+      <tm-cell :bottomBorder="false"  title="设置" rightText="已阅读同意">
+        <template v-slot:right>
+          <tm-checkbox ></tm-checkbox>
+        </template>
+      </tm-cell>
+    </tm-sheet>
+   */
+import tmSheet from "../tm-sheet/tm-sheet.vue";
+import tmText from "../tm-text/tm-text.vue";
+import tmIcon from "../tm-icon/tm-icon.vue";
+import tmImage from "../tm-image/tm-image.vue";
+import tmDivider from "../tm-divider/tm-divider.vue";
+import {
+  getCurrentInstance,
+  computed,
+	PropType
+} from "vue";
+import {
+  cssDirection,
+} from "../../tool/lib/interface";
+import {
+  custom_props
+} from "../../tool/lib/minxs";
+const emits = defineEmits(["click"]);
+const props = defineProps({
+  ...custom_props,
+  shadow: {
+    type: [Number],
+    default: 0,
+  },
+  round: {
+    type: [Number],
+    default: 0,
+  },
+  margin: {
+    type: Array as PropType<Array<number>>,
+    default: () => [32, 0],
+  },
+  padding: {
+    type: Array as PropType<Array<number>>,
+    default: () => [24, 24],
+  },
+  height: {
+    type: [Number],
+    default: 0,
+  },
+  width: {
+    type: [Number],
+    default: 0,
+  },
+  transprent: {
+    type: [Boolean],
+    default: false,
+  },
+  color: {
+    type: String,
+    default: "white",
+  },
+  //标题
+  title: {
+    type: String,
+    default: "",
+  },
+  titleFontSize: {
+    type: [Number],
+    default: 28,
+  },
+  //标题下方的介绍
+  label: {
+    type: String,
+    default: "",
+  },
+  labelColor: {
+    type: String,
+    default: "grey",
+  },
+  //右边文字
+  rightText: {
+    type: String,
+    default: "",
+  },
+  rightIcon: {
+    type: String,
+    default: "tmicon-angle-right",
+  },
+  //右边文字
+  rightColor: {
+    type: String,
+    default: "grey",
+  },
+  //右边文字大小。
+  rightTextSize:{
+	type: Number,
+	default: 24,
+  },
+  showAvatar: {
+    type: Boolean,
+    default: false,
+  },
+  //头像。
+  //https://picsum.photos/200
+  avatar: {
+    type: String,
+    default: "",
+  },
+  avatarSize: {
+    type: Number,
+    default: 60,
+  },
+  avatarRound: {
+    type: Number,
+    default: 10,
+  },
+  border: {
+    type: [Number],
+    default: 0,
+  },
+  borderDirection: {
+    type: [String],
+    default: cssDirection.bottom,
+  },
+  //显示下边线
+  bottomBorder: {
+    type: [Boolean],
+    default: false,
+  },
+  //当有链接地址时，将打开链接
+  url: {
+    type: String,
+    default: "",
+  },
+});
+function cellClick(e:any) {
+  emits("click", e);
+  if (props.url !== '') {
+    try {
+      uni.navigateTo({
+        url: props.url,
+        fail(error) {
+          console.error("打开连接错误：", error);
+        },
+      });
+    } catch (e) {
+      //TODO handle the exception
+    }
+  }
+}
+
+const _computedValue = computed(() => props);
+</script>
+
+<style scoped>
+.url {
+  /* #ifndef APP-NVUE */
+  cursor: pointer;
+  /* #endif */
+}
+</style>
