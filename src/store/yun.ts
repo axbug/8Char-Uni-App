@@ -21,7 +21,7 @@ export const useYunStore = defineStore('yun', {
 		};
 	},
 	actions: {
-		async pull(original) {
+		pull(original) {
 			this.original = original;
 			this.current_index = 0;
 			this.year_index = 0;
@@ -36,7 +36,7 @@ export const useYunStore = defineStore('yun', {
 			this.resolveDaYun();
 		},
 		// 大运
-		async resolveDaYun() {
+		resolveDaYun() {
 			const original = this.original;
 			const dayun_list = [];
 
@@ -63,7 +63,7 @@ export const useYunStore = defineStore('yun', {
 			this.resolveLiuYear();
 		},
 		// 小运（流年）
-		async resolveLiuYear() {
+		resolveLiuYear() {
 			const original = this.original;
 			const current_index = this.current_index;
 
@@ -93,7 +93,7 @@ export const useYunStore = defineStore('yun', {
 
 			this.resolveLiuMonth();
 		},
-		async resolveLiuMonth() {
+		resolveLiuMonth() {
 			const original = this.original;
 			const current_index = this.current_index;
 			const year_index = this.year_index;
@@ -132,7 +132,7 @@ export const useYunStore = defineStore('yun', {
 
 			// this.resolveLiuDay()
 		},
-		async resolveLiuDay() {
+		resolveLiuDay() {
 			const year_list = this.year_list;
 			const year_index = this.year_index;
 			const month_list = this.month_list;

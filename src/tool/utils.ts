@@ -1,13 +1,11 @@
 import { useBaziStore } from '@/store/bazi.ts';
 import { Solar } from 'lunar-javascript';
-import config from "@/common/config.ts"
+import {shishen_tiangan,shishen_dizhi} from "@/config/shishen-ganzhi.ts"
 
 export default {
 	// 获取十神
 	GetShiShen(ganzhi) {
 		const bazi_store = useBaziStore();
-
-		const { tiangan, dizhi } = config
 
 		const selfgan = bazi_store.tiangan.day
 
@@ -21,7 +19,7 @@ export default {
 			zhi = ganzhi[1]
 		}
 
-		return this.TransformShiShen(tiangan[selfgan][gan], dizhi[selfgan][zhi])
+		return this.TransformShiShen(shishen_tiangan[selfgan][gan], shishen_dizhi[selfgan][zhi])
 	},
 	// 转换十神
 	TransformShiShen(a, b) {

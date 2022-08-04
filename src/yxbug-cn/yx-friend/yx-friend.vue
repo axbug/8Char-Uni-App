@@ -1,7 +1,7 @@
 <template>
 	<view>
 		<tm-sheet :round="3" :shadow="2">
-			<template v-for="(bitem, bindex) in friend">
+			<template v-for="(bitem, bindex) in friend_list">
 				<tm-text :font-size="24" _class="font-weight-b pt-10" :label="['开源仓库', '项目相关'][bindex]"></tm-text>
 				<tm-divider :margin="[12, 12]"></tm-divider>
 				<tm-row :width="630" :column="4" color="blue-grey" :gutter="5">
@@ -19,12 +19,12 @@
 				</tm-row>
 			</template>
 		</tm-sheet>
-		<!-- <tm-divider class="pa-30" :label="'© 2022 八字排盘 Powered by 阿轩的Bug'"></tm-divider> -->
+		<tm-divider class="pa-30" :label="'© 2022 八字排盘 Powered by 阿轩的Bug'"></tm-divider>
 	</view>
 </template>
 
 <script lang="ts" setup>
-import { friend } from '@/common/config.ts';
+import { friend_list } from './config.ts';
 
 const ToLink = (url: string): void => (location.href = url);
 </script>
