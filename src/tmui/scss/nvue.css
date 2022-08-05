@@ -202,9 +202,6 @@
   text-overflow: ellipsis;
   lines: 4; }
 
-.wrap {
-  word-wrap: break-word; }
-
 .text-delete {
   text-decoration: line-through; }
 

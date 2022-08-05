@@ -1,0 +1,36 @@
+<template>
+	<tm-sheet v-if="bookStore.chenggu.poetry" :margin="[20, 10]" :padding="[30, 30]" :round="3" :shadow="2" _class="mb-10">
+		<view class="flex flex-row mb-16">
+			<view class="flex flex-1 flex-row flex-row-center-start">
+				<view class="pr-16"><tm-icon name="tmicon-application"></tm-icon></view>
+				<tm-text :font-size="28" class="text-weight-b" label="袁天罡称骨"></tm-text>
+			</view>
+			<view class="flex flex-1 flex-row flex-row-center-end">
+				<view class="pr-16"><tm-icon name="tmicon-md-disc"></tm-icon></view>
+				<tm-text :font-size="28" :label="'重量: ' + bookStore.chenggu.total" class="text-weight-b"></tm-text>
+			</view>
+		</view>
+		<template v-for="(item, index) in ['poetry', 'explain', 'title']">
+			<view v-if="bookStore.chenggu[item]">
+				<tm-text
+					:class="index === 0 ? 'my-8' : 'mt-16'"
+					:font-size="26"
+					:label="['歌诀', '解析', '点评'][index]"
+					class="text-weight-b"
+				></tm-text>
+				<tm-text
+					:class="{ 'text-weight-b': index === 0 }"
+					:font-size="index !== 1 ? 28 : 24"
+					:label="bookStore.chenggu[item]"
+					class="mt-8"
+				></tm-text>
+			</view>
+		</template>
+	</tm-sheet>
+</template>
+
+<script lang="ts" setup>
+import {useBookStore} from "@/store/book";
+
+const bookStore = useBookStore();
+</script>

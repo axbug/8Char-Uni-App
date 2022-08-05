@@ -1,0 +1,14 @@
+<template>
+	<view>
+		<pillar-yun></pillar-yun>
+		<yun-view></yun-view>
+		<view class="flex mt-20"><wuxing-wangshuai></wuxing-wangshuai></view>
+		<yxn-coding class="mt-20" index="2" title="流运神煞"></yxn-coding>
+	</view>
+</template>
+
+<script lang="ts" setup>
+import PillarYun from '../index-speciali-pillar-yun/index-speciali-pillar-yun.nvue';
+import WuxingWangshuai from '../index-wuxing-wangshuai/index-wuxing-wangshuai.nvue';
+import YunView from '../index-speciali-yun/index-speciali-yun.nvue';
+</script>

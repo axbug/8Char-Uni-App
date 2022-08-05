@@ -8,7 +8,7 @@
     :autoPlay="false"
   >
     <tm-sheet
-      :height="props.height-props.padding[1]*2"
+      :height="props.height - props.padding[1] * 2"
       :color="props.color"
       :_class="_class"
       :_style="_style"
@@ -46,15 +46,20 @@
               v-if="activeIndex == index"
             >
               <view class="flex-12 flex flex-row flex-row-top-start">
-                <view v-if="item['icon']" class="pr-32">
-                  <tm-icon :fontSize="32" :name="item['icon']"></tm-icon>
+                <view v-if="item['icon']" class="pr-32" :style="{ height: '36rpx' }">
+                  <tm-icon :fontSize="32" :lineHeight="0" :name="item['icon']"></tm-icon>
                 </view>
                 <view style="width: 0px" class="flex-12 flex flex-col">
-                  <view v-if="item['title']" class="pb-12">
+                  <view
+                    v-if="item['title']"
+                    class="flex flex-col flex-col-top-start "
+                    :style="{ height: '36rpx' }"
+                  >
                     <tm-text
                       @click="emits('click', $event)"
                       _class="text-size-m  text-overflow-1 text-weight-b"
                       :fontSize="30"
+                      :lineHeight="0"
                       :label="item['title']"
                     ></tm-text>
                   </view>
@@ -64,11 +69,11 @@
                       @click="emits('click', $event)"
                       :fontSize="26"
                       :_class="'text-overflow-' + props.maxLine"
-                      :_style="{ lineHeight: '34rpx' }"
+                      :lineHeight="0"
                       :label="item['content']"
                     ></tm-text>
                     <tm-text
-                      v-if="len > 1&&props.showDot"
+                      v-if="len > 1 && props.showDot"
                       _class="pt-24"
                       :label="`${activeIndex + 1}/${len}`"
                     >
@@ -79,13 +84,16 @@
             </tm-translate>
           </view>
         </view>
-        <view v-if="closable" class="flex flex-row flex-row-top-end">
-          <tm-icon
-            @click="close"
-            :fontSize="32"
-            name="tmicon-times-circle-fill"
-          ></tm-icon>
-        </view>
+        <slot name="right">
+          <view v-if="closable" class="flex flex-row flex-row-top-end">
+            <tm-icon
+              @click="close"
+              :fontSize="32"
+              :lineHeight="0"
+              name="tmicon-times-circle-fill"
+            ></tm-icon>
+          </view>
+        </slot>
       </view>
     </tm-sheet>
   </tm-translate>
@@ -101,10 +109,17 @@ import tmSheet from "../tm-sheet/tm-sheet.vue";
 import tmText from "../tm-text/tm-text.vue";
 import tmIcon from "../tm-icon/tm-icon.vue";
 import tmTranslate from "../tm-translate/tm-translate.vue";
-import { itemType } from "./interface";
 import { custom_props } from "../../tool/lib/minxs";
-import {computed, ref, onMounted, onUnmounted, PropType, ComponentInternalInstance, InjectionKey } from "vue";
-const bodyani = ref<InstanceType<typeof tmTranslate> | null>(null)
+import {
+  computed,
+  ref,
+  onMounted,
+  onUnmounted,
+  PropType,
+  ComponentInternalInstance,
+  InjectionKey,
+} from "vue";
+const bodyani = ref<InstanceType<typeof tmTranslate> | null>(null);
 const emits = defineEmits(["click"]);
 const props = defineProps({
   ...custom_props,
@@ -129,8 +144,8 @@ const props = defineProps({
     default: () => [24, 24],
   },
   content: {
-    type: Array as PropType<Array<itemType>>,
-    default: () => [],
+    type: [Array,Object] as PropType<Array<Tmui.tmAlert>|Tmui.tmAlert>,
+    default: ():Array<Tmui.tmAlert> => [],
   },
   autoPlay: {
     type: Boolean,
@@ -160,19 +175,27 @@ const props = defineProps({
     type: [Number],
     default: 1,
   },
-  showDot:{
+  showDot: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 const activeIndex = ref(0);
 const showBody = ref(true);
-
-let timeid = uni.$tm.u.getUid(5);
+let timeid: any = uni.$tm.u.getUid(5);
 const reani = computed(() =>
   props.hidnAniName == "zoom" || props.hidnAniName == "fade" ? true : false
 );
-const list = computed(() => {
+const list = computed(():Tmui.tmAlert[] => {
+  if(!Array.isArray(props.content)){
+    return [
+      {
+        content:props.content?.content??'',
+        title:props.content?.title ?? "",
+        icon:props.content?.icon ?? "",
+      }
+    ]
+  }
   let c = props.content.map((el) => {
     el["content"] = el?.content ?? "";
     el["title"] = el?.title ?? "";
@@ -213,8 +236,10 @@ function next() {
 }
 
 function close() {
-   bodyani.value?.play();
+  bodyani.value?.play();
+  clearTimeout(timeid);
+  timeid = setTimeout(function () {
+    showBody.value = false;
+  }, 301);
 }
-
-
 </script>

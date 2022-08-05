@@ -1,18 +1,21 @@
 <template>
-    <view>
-        <view class="tm-sticky flex flex-col" :style="[
-            props.model == 'top' ? { top: `${_offset}`} : '',
-            props.model == 'left' ? { left: `${_offset}` } : '',
-            { 'z-index': props.zIndex }
-        ]">
-            <view class=" flex flex-col">
-                <slot name="sticky"></slot>
-            </view>
-        </view>
-        <view>
-            <slot></slot>
-        </view>
+  <view>
+    <view
+      class="tm-sticky flex flex-col"
+      :style="[
+        props.model == 'top' ? { top: `${_offset}` } : '',
+        props.model == 'left' ? { left: `${_offset}` } : '',
+        { 'z-index': props.zIndex },
+      ]"
+    >
+      <view class="flex flex-col">
+        <slot name="sticky"></slot>
+      </view>
     </view>
+    <view>
+      <slot></slot>
+    </view>
+  </view>
 </template>
 <script lang="ts" setup>
 /**
@@ -28,33 +31,31 @@
                 <!-- 这里放置你的内容内容 -->
             </tm-sticky>
  */
-import { computed, ref } from 'vue';
+import { computed, ref } from "vue";
 const props = defineProps({
-    //可能的值为:left,top
-    //默认为：top
-    model: {
-        type: String,
-        default: "top"
-    },
-    offset: {
-        type: [String,Number],
-        default: '0px'
-    },
-    //层级对于nvue是无效的。
-    zIndex: {
-        type: Number,
-        default: 50
-    }
-})
-const _offset = computed(()=>{
-    if(typeof props.offset === 'number') return props.offset+'rpx';
-    return props.offset;
-})
-
-
+  //可能的值为:left,top
+  //默认为：top
+  model: {
+    type: String,
+    default: "top",
+  },
+  offset: {
+    type: [String, Number],
+    default: "0px",
+  },
+  //层级对于nvue是无效的。
+  zIndex: {
+    type: Number,
+    default: 50,
+  },
+});
+const _offset = computed(() => {
+  if (typeof props.offset === "number") return props.offset + "rpx";
+  return props.offset;
+});
 </script>
 <style scoped>
 .tm-sticky {
-    position: sticky;
+  position: sticky;
 }
 </style>

@@ -1,235 +1,254 @@
 <template>
-	<view :style="`width:${attr.width}rpx;height:${attr.height}rpx `" class="overflow"
-		:class="[attr.disabled?'opacity-7':'']">
-		<movable-area  :style="{
-			width: (attr.width*2) + 'rpx',
-			height: attr.height + 'rpx',
-			transform:`translateX(-${_cellwidth}px)`
-		}">
-			<movable-view :animation="_animation"  :style="{
-			width: attr.width + 'rpx',
-			height: attr.height + 'rpx'
-		}" :x="_cellwidth" disabled direction="horizontal" class="flex flex-1 flex-row flex-between">
-				<view></view>
-				<view class="flex flex-row flex-row-center-end">
-					<tm-sheet no-level hover-class="opacity-7" @click="actionClick(item,index)" :margin="[0, 0]"
-						:padding="[0, 0]" v-for="(item, index) in list" :key="index" :color="item.color"
-						:height="attr.height" :width="item.width" _class="flex-center flex-row">
-						<tm-icon :font-size="26" _class="pr-8" v-if="item.icon" :userInteractionEnabled="false"
-							:name="item.icon"></tm-icon>
-						<tm-text :userInteractionEnabled="false" :label="item.text"></tm-text>
-					</tm-sheet>
-				</view>
-			</movable-view>
-			<movable-view 
-			:animation="_animation" 
-			@click="onclick" 
-			@touchstart="startDrag" 
-			@mousedown="startDrag" 
-			@touchcancel="endDrag"
-			@touchend="endDrag" 
-			@mouseleave="endDrag" 
-			@mouseup="endDrag" 
-			:disabled="_disabled"
-			@change="onChange" :x="_mX" :style="{
-			width: attr.width + 'rpx',
-			height: attr.height + 'rpx'
-		}" class="flex  flex-1 flex-row flex-between absolute l-0 t-0" direction="horizontal">
-				<tm-sheet v-if="isRend" :shadow="0" :outlined="props.outlined" :borderStyle="props.borderStyle"
-					:borderDirection="props.borderDirection" :linearDeep="props.linearDeep" :linear="props.linear"
-					:round="props.round" :color="props.color" :text="_disabled" :transprent="props.transprent"
-					:width="attr.width" :height="attr.height" :margin="[0, 0]" :padding="[0, 0]">
-					<slot></slot>
-				</tm-sheet>
-			</movable-view>
-		</movable-area>
-	</view>
+  <!-- #ifndef APP-NVUE -->
+  <view @touchmove.stop="">
+    <view :data-prop="attr" v-if="!_disabled" @touchstart="action.startDrag" @touchmove="action.onDrag" @touchend="action.endDrag"
+      @touchcancel="action.endDrag" :style="`width:${attr.width}px;height:${attr.height}px `" class="overflow relative"
+      :class="[attr.disabled ? 'opacity-7' : '']">
+      <view class="flex flex-row flex-row-center-between">
+        <view id="left" :style="{ width: `${leftWidth}px`, height: `${attr.height}px` }">
+          <slot name="left"></slot>
+        </view>
+        <view id="right" :style="{ width: `${rightWidth}px`, height: `${attr.height}px` }">
+          <slot name="right"></slot>
+        </view>
+      </view>
+      <view id="wrapper" class="absolute l-0 t-0" :style="`width:${attr.width}px;height:${attr.height}px;transform:${opened ? '' : 'translate3d( 0px, 0, 0)'
+      }`">
+        <tm-sheet @click="emits('click')" :shadow="0" :outlined="props.outlined" :borderStyle="props.borderStyle"
+          unit="px" :borderDirection="props.borderDirection" :linearDeep="props.linearDeep" :linear="props.linear"
+          :round="props.round" :color="props.color" :text="_disabled" :transprent="props.transprent" :width="attr.width"
+          :height="attr.height" :margin="[0, 0]" :padding="[0, 0]">
+          <slot></slot>
+        </tm-sheet>
+      </view>
+    </view>
 
+    <view v-if="_disabled" :style="`width:${attr.width}px;height:${attr.height}px `" class="overflow relative"
+      :class="[attr.disabled ? 'opacity-7' : '']">
+      <view class="flex flex-row flex-row-center-between">
+        <view id="left" :style="{ width: `${leftWidth}px`, height: `${attr.height}px` }">
+          <slot name="left"></slot>
+        </view>
+        <view id="right" :style="{ width: `${rightWidth}px`, height: `${attr.height}px` }">
+          <slot name="right"></slot>
+        </view>
+      </view>
+      <view id="wrapper" class="absolute l-0 t-0" :style="`width:${attr.width}px;height:${attr.height}px `">
+        <tm-sheet @click="emits('click')" :shadow="0" :outlined="props.outlined" :borderStyle="props.borderStyle"
+          unit="px" :borderDirection="props.borderDirection" :linearDeep="props.linearDeep" :linear="props.linear"
+          :round="props.round" :color="props.color" :text="_disabled" :transprent="props.transprent" :width="attr.width"
+          :height="attr.height" :margin="[0, 0]" :padding="[0, 0]">
+          <slot></slot>
+        </tm-sheet>
+      </view>
+    </view>
+  </view>
+  <!-- #endif -->
+  <!-- #ifdef APP-NVUE -->
+  <view :style="`width:${attr.width}px;height:${attr.height}px `" class="overflow relative"
+    :class="[attr.disabled ? 'opacity-7' : '']">
+    <view class="flex flex-row flex-row-center-between">
+      <view id="left" :style="{ width: `${leftWidth}px`, height: `${attr.height}px` }">
+        <slot name="left"></slot>
+      </view>
+      <view id="right" :style="{ width: `${rightWidth}px`, height: `${attr.height}px` }">
+        <slot name="right"></slot>
+      </view>
+    </view>
+    <view @click="emits('click')" @touchstart.stop="touchstart" id="wrapper" ref="tabsDom" class="absolute l-0 t-0"
+      :style="`width:${attr.width}px;height:${attr.height}px;transform:${opened ? '' : 'translate3d( 0px, 0, 0)'
+      }`">
+      <tm-sheet :eventPenetrationEnabled="true" :shadow="0" :outlined="props.outlined" :borderStyle="props.borderStyle"
+        unit="px" :borderDirection="props.borderDirection" :linearDeep="props.linearDeep" :linear="props.linear"
+        :round="props.round" :color="props.color" :text="_disabled" :transprent="props.transprent" :width="attr.width"
+        :height="attr.height" :margin="[0, 0]" :padding="[0, 0]">
+        <slot></slot>
+      </tm-sheet>
+    </view>
+  </view>
+  <!-- #endif -->
 </template>
-
+<!-- #ifndef APP-NVUE -->
+<script module="action" lang="wxs" src="./action.wxs"></script>
+<!-- #endif -->
 <script lang="ts" setup>
-	/**
-	 * 左滑操作栏
-	 * @description  向左滑动显示底部操作按钮栏。
-	 */
-	import {
-		computed,
-		nextTick,
-		onMounted,
-		PropType,
-		ref,
-		watch,
-		watchEffect
-	} from 'vue';
-	import {
-		custom_props
-	} from '../../tool/lib/minxs';
-	import {
-		actionItem
-	} from "./interface"
-	import tmSheet from '../tm-sheet/tm-sheet.vue';
-	import tmText from '../tm-text/tm-text.vue';
-	import tmIcon from '../tm-icon/tm-icon.vue';
-	const emits = defineEmits(["click", 'action-click', "update:open-status"])
-	const props = defineProps({
-		...custom_props,
-		width: {
-			type: Number,
-			default: 750
-		},
-		height: {
-			type: Number,
-			default: 88
-		},
-		action: {
-			type: Array as PropType < Array < actionItem >> ,
-			default: () => []
-		},
-		disabled: {
-			type: Boolean,
-			default: false
-		},
-		transprent: {
-			type: Boolean,
-			default: false
-		},
-		color: {
-			type: String,
-			default: 'white'
-		},
-		round: {
-			type: Number,
-			default: 0
-		},
-		//当前打开的状态，可以使用v-model:open-status
-		openStatus: {
-			type: Boolean,
-			default: false
-		}
-	});
-	const attr = computed(() => {
-		return {
-			width: props.width,
-			height: props.height,
-			disabled: props.disabled
-		};
-	});
-	const _disabled = ref(props.disabled)
-	watchEffect(()=>{
-		_disabled.value = props.disabled
-	})
-	//宽度。
-	const _cellwidth = computed(()=>uni.upx2px(attr.value.width))
-	//总实际宽度。
-	const _cellwidthTotal = computed(()=>_cellwidth.value*2)
-	const list = computed(() => {
-		let lp = props.action.map(el => {
-			return {
-				text: el?.text ?? "",
-				color: el?.color ?? "white",
-				width: el?.width ?? 180,
-				icon: el?.icon ?? '',
-				...el
-			}
-		})
-		return lp;
-	})
-	const maxWidth = computed(() => {
-		let w = 0;
-		for (let i = 0, len = list.value.length; i < len; i++) {
-			w += list.value[i].width;
-		}
-		return uni.upx2px(w);
-	})
-	const _x = ref(_cellwidth.value);
-	const _old_x = ref(_cellwidth.value)
-	const _mX = ref(_cellwidth.value)
-	const _isDrag = ref(false)
-	const isRend = ref(false)
-	const _animation = ref(false)
-	const _isCloseAni = ref(true)
-	let tid = 265988
-	watch(() => props.openStatus, () => oninit())
-	onMounted(() => {
-		oninit()
-		nextTick(()=>isRend.value=true)
-		setTimeout(()=>_animation.value=true,300)
-	})
+/**
+ * 左滑操作栏
+ * @description  向左滑动显示底部操作按钮栏。
+ */
+import {
+  computed,
+  nextTick,
+  onMounted,
+  ref,
+  getCurrentInstance,
+} from "vue";
+import { custom_props } from "../../tool/lib/minxs";
+import { defaultProps } from "./props";
+import tmSheet from "../tm-sheet/tm-sheet.vue";
+// @ts-ignore
+// #ifdef APP-NVUE
+var dom = weex.requireModule("dom");
+const Binding = uni.requireNativePlugin("bindingx");
+const animation = uni.requireNativePlugin("animation");
+// #endif
+const proxy = getCurrentInstance()?.proxy ?? null;
+const bindxToken = ref(null);
+const props = defineProps({
+  ...custom_props,
+  ...defaultProps,
+});
+const emits = defineEmits(["click", "update:open-status"]);
 
-	function oninit() {
-		if (props.openStatus) {
-			_mX.value = _cellwidth.value
-			uni.$tm.u.debounce(() => {
-				_x.value = _cellwidth.value-maxWidth.value
-				_old_x.value = _x.value
-				_mX.value = _x.value
-			}, 40)
-		} else {
-			_x.value =  _cellwidth.value
-		}
-	}
-	const onChange = (e: Event) => {
-		_x.value = e.detail.x
-		// #ifndef MP
-		_mX.value = _x.value
-		// #endif
-		if(_isDrag.value==true&&e.detail.source=='touch'&&_isCloseAni.value===true){
-			_old_x.value = _x.value
-		}
-		_isDrag.value = false;
-		let maxLen = _cellwidth.value-maxWidth.value;
-		if(_x.value<maxLen){
-			_disabled.value=true;
-		}
-	}
-	const startDrag = () => {
-		_isDrag.value = true;
-	}
-	const endDrag = () => {
-		let x_c =  Math.abs(_old_x.value) - Math.abs(_x.value);
-		
-		_old_x.value = _x.value;
-		
-		if(x_c!==0){
-			// #ifndef MP
-			_mX.value =  _cellwidth.value-1
-			// #endif
-		}
-		uni.$tm.u.throttle(() => {
-			if (x_c > 0) {
-				//向左滑动。
-				if(x_c>=20){
-					//恢复到原位。
-					_x.value = _cellwidth.value-maxWidth.value
-					_old_x.value = _x.value
-					_mX.value = _x.value
-					emits("update:open-status", true)
-				}else{
-					_x.value = _cellwidth.value
-					_old_x.value = _x.value
-					_mX.value = _x.value
-					emits("update:open-status", false)
-				}
-			} else {
-				//向右滑动。
-				_x.value = _cellwidth.value
-				_old_x.value = _x.value
-				_mX.value = _x.value
-				emits("update:open-status", false)
-			}
-			_isCloseAni.value = false;
-			if(!attr.value.disabled){
-				_disabled.value=false;
-			}
-		},50,false)
-	}
-	const onclick = (e: Event) => {
-		emits("click", e)
-	}
-	const actionClick = (item: actionItem, index: number) => {
-		emits("action-click", item, index)
-	}
+const _disabled = ref(props.disabled);
+const opened = ref(false);
+const closed = ref(false);
+
+const leftWidth = computed(() => props.leftWidth);
+const rightWidth = computed(() => props.rightWidth);
+const attr = computed(() => {
+  return {
+    width: Math.ceil(uni.$tm.u.topx(props.width)),
+    height: Math.ceil(uni.$tm.u.topx(props.height)),
+    disabled: props.disabled,
+    leftWidth: props.leftWidth,
+    rightWidth: props.rightWidth,
+    opened:opened.value,
+    closed:closed.value
+  };
+});
+function close() {
+  opened.value = false;
+  emits("update:open-status", false);
+}
+function closeOther() {
+  // console.log(6666)
+  // ARRAY.filter((item) => item !== this).forEach((item) => item.close());
+}
+function open(arg) {
+  opened.value = true;
+  emits("update:open-status", true);
+  console.log('------')
+}
+
+function tap() {
+  close();
+}
+function getLeftRightwidth() {
+  // getLeftRightwidth
+  return 500;
+}
+// nvue bingx
+let nvue_now_left = 0;
+function getEl(el: HTMLElement) {
+  if (typeof el === "string" || typeof el === "number") return el;
+  if (WXEnvironment) {
+    return el.ref;
+  } else {
+    return el instanceof HTMLElement ? el : el.$el;
+  }
+}
+function spinNvueAniEnd(start: number, end: number, isEnd = false, duration = 300) {
+  // #ifdef APP-NVUE
+  if (!proxy.$refs?.tabsDom) return;
+  animation.transition(
+    proxy.$refs.tabsDom,
+    {
+      styles: {
+        transform: `translateX(${start + end}px)`,
+        transformOrigin: "center center",
+      },
+      duration: duration, //ms
+      timingFunction: "cubicBezier(0.18, 0.89, 0.32, 1)",
+      delay: 0, //ms
+    },
+    () => {
+      if (isEnd) {
+        close();
+      } else {
+        open("right");
+      }
+    }
+  );
+
+  // #endif
+}
+
+function touchstart(e: TouchEvent) {
+  if (_disabled.value) return;
+  // #ifdef APP-NVUE
+  if (!proxy.$refs?.tabsDom) return;
+
+  let icon = getEl(proxy.$refs.tabsDom);
+  let expression = ``;
+  if (nvue_now_left < 0) {
+    expression = `x<120&&x>=0?x-120:(x<0?-x:0)`;
+  } else {
+    expression = `(x<=0&&x>-120)?x+0:-x`;
+  }
+  let icon_bind = Binding.bind(
+    {
+      anchor: icon,
+      eventType: "pan",
+      props: [
+        {
+          element: icon,
+          property: "transform.translateX",
+          expression: expression,
+        },
+      ],
+    },
+    function (res) {
+      if (res.state == "end") {
+        let lx = Math.abs(res.deltaX);
+        let left = res.deltaX >= 0 ? false : true;
+
+        if (nvue_now_left == -attr.value.rightWidth) {
+          if (res.deltaX == 0) {
+            spinNvueAniEnd(res.deltaX, 0);
+          } else if (res.deltaX < 0) {
+            spinNvueAniEnd(res.deltaX, lx);
+          } else {
+            spinNvueAniEnd(res.deltaX, -lx);
+          }
+          opened.value = false;
+          nvue_now_left = 0;
+        } else {
+          if (lx > 30 && left) {
+            spinNvueAniEnd(res.deltaX, left ? -(attr.value.rightWidth - lx) : 0, true);
+            opened.value = true;
+            nvue_now_left = -attr.value.rightWidth;
+          } else {
+            spinNvueAniEnd(res.deltaX, -res.deltaX);
+            opened.value = false;
+            nvue_now_left = 0;
+          }
+        }
+      } else if (res.state == "start") {
+        // isMoveing.value = true
+      }
+    }
+  );
+  bindxToken.value = icon_bind.token;
+  // #endif
+}
+
+onMounted(() => {
+  // #ifdef APP-NVUE
+  if (props.openStatus) {
+    opened.value = true;
+    nvue_now_left = -attr.value.rightWidth;
+    nextTick(() => {
+      spinNvueAniEnd(0, -attr.value.rightWidth);
+    });
+  }
+  // #endif
+});
+
+defineExpose({ closeOther, close, open, getLeftRightwidth, rightWidth });
+
 </script>
 
 <style>
+
 </style>

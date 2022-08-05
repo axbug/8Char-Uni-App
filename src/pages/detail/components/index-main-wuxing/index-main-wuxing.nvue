@@ -1,0 +1,65 @@
+<template>
+	<tm-sheet v-if="wuxingOption.computed.list.length" :margin="[20, 10]" :padding="[30, 30]" :round="3" :shadow="10">
+		<view class="flex flex-row mb-30">
+			<view class="flex-1 flex flex-row flex-row-center-center">
+				<view><tm-icon class="flex-1 pr-16" name="tmicon-chart-bar"></tm-icon></view>
+				<tm-text :font-size="28" class="flex-1 text-weight-b" label="五行数据"></tm-text>
+			</view>
+			<view class="flex-1">
+				<view class="flex flex-row flex-row-center-end">
+					<view><tm-text :font-size="28" class="flex-10 text-weight-b pr-16" label="包含藏干"></tm-text></view>
+					<view><tm-switch v-model="wuxingOption.include" size="mini"></tm-switch></view>
+				</view>
+			</view>
+		</view>
+		<template v-for="(item, index) in wuxingOption.computed.list">
+			<view class="flex flex-row flex-row-center-center">
+				<tm-text :label="wuxingOption.label[index]" class="text-weight-b flex-2 pr-16"></tm-text>
+				<tm-progress
+					:color="wuxingOption.color[index]"
+					:height="20"
+					:percent="GetWuxingPercent(item)"
+					:width="458"
+					class="flex-2"
+				></tm-progress>
+				<tm-text :label="item + '个 ' + wuxingOption.computed.label[index]" class="text-weight-b flex-end flex-2"></tm-text>
+			</view>
+		</template>
+		<view class="flex mt-20"><wuxing-wangshuai color></wuxing-wangshuai></view>
+	</tm-sheet>
+</template>
+
+<script lang="ts" setup>
+import { reactive, watch, onMounted } from 'vue';
+import { useBaziStore } from '@/store/bazi.ts';
+import { wuxingLabelList } from '@/config/data/wuxing.ts';
+import { colorList as wuxingColorList } from '@/config/data/wuxing.ts';
+import WuxingWangshuai from '../index-wuxing-wangshuai/index-wuxing-wangshuai.nvue';
+
+const baziStore = useBaziStore();
+const wuxingOption = reactive({
+	label: wuxingLabelList,
+	color: wuxingColorList,
+	computed: {
+		list: [],
+		total: 0,
+		label: []
+	},
+	include: true
+});
+
+onMounted(() => {
+	wuxingOption.include = false;
+});
+
+watch(
+	() => wuxingOption.include,
+	val => {
+		wuxingOption.computed = val ? baziStore.wuxingNum.include : baziStore.wuxingNum.ninclude;
+	}
+);
+
+function GetWuxingPercent(num: number): number {
+	return Math.round((num / wuxingOption.computed.total) * 100);
+}
+</script>

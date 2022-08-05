@@ -1,0 +1,146 @@
+<template>
+	<view>
+		<tm-navbar hideHome title="四柱易学">
+			<template v-slot:left>
+				<!-- #ifndef H5|APP-NVUE -->
+				<tm-icon
+					class="ml-30"
+					:font-size="36"
+					:color="store.tmStore.dark ? 'yellow' : 'yellow'"
+					:name="store.tmStore.dark ? 'tmicon-ios-sunny' : 'tmicon-md-moon'"
+					@click="onChangeDark"
+				></tm-icon>
+				<!-- #endif -->
+			</template>
+			<template v-slot:right>
+				<view class="flex flex-center flex-row pr-30">
+					<!-- <tm-icon
+						class="pr-40"
+						:font-size="36"
+						:color="store.tmStore.dark ? 'grey-5' : 'grey'"
+						name="tmicon-md-contrast"
+						@click="themeShow = true"
+					></tm-icon> -->
+					<!-- #ifdef H5|APP-NVUE -->
+					<tm-icon
+						:font-size="36"
+						:color="store.tmStore.dark ? 'yellow' : 'yellow'"
+						:name="store.tmStore.dark ? 'tmicon-ios-sunny' : 'tmicon-md-moon'"
+						@click="onChangeDark"
+					></tm-icon>
+					<!-- #endif -->
+				</view>
+			</template>
+		</tm-navbar>
+		<!-- <yx-set-theme :show="themeShow" @update:show="themeShow = $event"></yx-set-theme> -->
+		<tm-overlay transprent :overlayClick="false" style="width:1500rpx;" v-model:show="overlayOption.show" ref="overlay">
+			<view :class="{ 'yx-dark-mode': overlayOption.isDark }">
+				<view class="yx-dark-mode-sky"><view class="yx-dark-mode-planet" :animation="animationData.mode">21323123</view></view>
+			</view>
+		</tm-overlay>
+	</view>
+</template>
+
+<script lang="ts" setup>
+import { ref, reactive } from 'vue';
+import { useTmpiniaStore } from '@/tmui/tool/lib/tmpinia';
+const store = useTmpiniaStore();
+// const themeShow = ref(false);
+const onChangeDark = () => {
+	const currentTheme = store.tmStore.dark;
+	// #ifndef H5
+	store.setTmVuetifyDark(!currentTheme);
+	// #endif
+
+	// #ifdef H5
+	overlayOption.value.show = true;
+	overlayOption.value.isDark = currentTheme;
+	setTimeout(
+		() => {
+			overlayOption.value.isDark = !currentTheme;
+		},
+		currentTheme ? 888 : 1088
+	);
+	animation.rotateZ(360).step();
+	setTimeout(() => {
+		store.setTmVuetifyDark(!currentTheme);
+		overlayOption.value.show = false;
+	}, 2800);
+	animationData.mode = animation.export();
+	// #endif
+};
+const overlay = ref(null);
+const overlayOption = ref({
+	show: false,
+	isDark: false
+});
+
+const animation = uni.createAnimation({
+	duration: 2000,
+	timingFunction: 'linear'
+});
+
+const animationData = reactive({
+	mode: {}
+});
+</script>
+
+<style lang="scss" scoped>
+.yx-dark-mode-sky,
+.yx-dark-mode-sky:before {
+	/* #ifndef APP-NVUE */
+	content: '';
+	/* #endif */
+	position: fixed;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	z-index: 999999999;
+	transition: 2s ease all;
+}
+
+.yx-dark-mode-sky {
+	background: linear-gradient(#feb8b0, #fef9db);
+}
+.yx-dark-mode-sky:before {
+	opacity: 0;
+	background: linear-gradient(#4c3f6d, #6c62bb, #93b1ed);
+}
+
+.yx-dark-mode {
+	.yx-dark-mode-sky:before {
+		opacity: 1;
+	}
+}
+
+.yx-dark-mode-planet {
+	z-index: 1999999999;
+	position: fixed;
+	left: -120%;
+	top: -50%;
+	width: 400%;
+	height: 200%;
+	transform-origin: center bottom;
+	transition: 0.5s cubic-bezier(0.7, 0, 0, 1) all;
+}
+.yx-dark-mode-planet:after {
+	position: absolute;
+	left: 35%;
+	top: 40%;
+	width: 150px;
+	height: 150px;
+	border-radius: 50%;
+	/* #ifndef APP-NVUE */
+	content: '';
+	/* #endif */
+	background-image: linear-gradient(45deg, lightyellow 0%, yellow 90%, yellow 100%);
+}
+
+.yx-dark-mode {
+	.yx-dark-mode-planet:after {
+		background: transparent;
+		box-shadow: 88rpx 88rpx 0 0 yellow;
+	}
+}
+</style>

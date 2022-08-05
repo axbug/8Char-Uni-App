@@ -5,6 +5,16 @@
   display: none;
   /*隐藏滚动条*/ }
 
+.nvue {
+  display: flex;
+  flex-shrink: 0;
+  flex-grow: 0;
+  flex-basis: auto;
+  align-items: stretch;
+  align-content: flex-start;
+  box-sizing: border-box;
+  flex-direction: column; }
+
 /* #endif */
 /* #ifndef APP-PLUS-NVUE */
 .safe-height {

@@ -1,0 +1,69 @@
+<template>
+	<tm-drawer
+		:height="488"
+		:show="showCustom"
+		:width="600"
+		hideHeader
+		placement="center"
+		@close="DrawerClose"
+		@update:show="showCustom = $event"
+	>
+		<view class="pa-32 flex flex-col">
+			<view class="text-align-center py-30"><tm-text :font-size="32" _class="text-weight-b" label="自定义主题"></tm-text></view>
+			<tm-input
+				v-model="showCustomColor"
+				:border="1"
+				class="mt-10 flex"
+				placeholder="请输入颜色值,比如:#6768ab"
+				prefixLabel="颜色值"
+				showClear
+			></tm-input>
+
+			<view class="mt-30">
+				<tm-button block label="确认切换" @click="ChangeTheme"></tm-button>
+				<tm-button block label="重置主题" @click="ResetTheme"></tm-button>
+			</view>
+		</view>
+	</tm-drawer>
+</template>
+
+<script lang="ts" setup>
+import { ref, watchEffect } from 'vue';
+import { useTmpiniaStore } from '@/tmui/tool/lib/tmpinia';
+
+const emits = defineEmits(['update:show']);
+const props = defineProps({
+	show: {
+		type: Boolean,
+		default: false
+	}
+});
+
+const store = useTmpiniaStore();
+const showCustomColor = ref('#6768ab');
+const showCustom = ref(props.show);
+
+watchEffect(() => {
+	showCustom.value = props.show;
+});
+
+const ChangeTheme = () => {
+	if (!showCustomColor.value) {
+		uni.showToast({
+			title: '请输入颜色值！'
+		});
+		return;
+	}
+	store.setTmVuetifyAddTheme('user-diy' + new Date().getTime(), showCustomColor.value);
+	showCustom.value = false;
+	emits('update:show', false);
+};
+
+const DrawerClose = () => emits('update:show', false);
+
+const ResetTheme = () => {
+	store.setTmVuetifyTheme('');
+	showCustom.value = false;
+	emits('update:show', false);
+};
+</script>

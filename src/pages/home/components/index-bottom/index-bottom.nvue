@@ -1,0 +1,85 @@
+<template>
+	<view>
+		<tm-sheet :round="3" :shadow="2">
+			<template v-for="(bitem, bindex) in friendList">
+				<tm-text :font-size="38" :label="['关于项目', '关于作者'][bindex]" _class="text-weight-b pt-10 mb-20"></tm-text>
+				<tm-row :column="4" :gutter="5" :width="630" color="blue-grey">
+					<tm-col v-for="item in bitem" :height="168">
+						<tm-image
+							:height="100"
+							:src="item.icon"
+							:width="100"
+							class="round-3"
+							style="background-color: #ffffff"
+							@click="ColClick(item)"
+						></tm-image>
+						<tm-text :label="item.title" _class="text-weight-n" class="pt-14 pb-8"></tm-text>
+					</tm-col>
+				</tm-row>
+			</template>
+		</tm-sheet>
+
+		<tm-drawer ref="support" v-model:show="supportOption.show" :height="800" hideHeader placement="bottom">
+			<tm-tabs
+				v-model:active-name="supportOption.tabs.current"
+        :defaultName="0"
+				:activeFontColor="TabsCurrentColor"
+				:height="300"
+				:list="supportOption.tabs.list"
+				:width="750"
+				align="center"
+			></tm-tabs>
+			<view class="flex flex-row flex-row-center-center mt-30">
+				<tm-image :height="468" :src="currentSupportImg" :width="468" preview></tm-image>
+			</view>
+			<view class="my-10 mx-30"><tm-text :label="supportOption.des" _class="text-weight-b"></tm-text></view>
+		</tm-drawer>
+
+		<tm-divider :label="'© 2022 八字排盘 Powered by 阿轩的Bug'" class="pa-30"></tm-divider>
+	</view>
+</template>
+
+<script lang="ts" setup>
+import {reactive, computed} from "vue";
+import {friendList, supportList, supportContent} from "./config";
+
+const supportOption = reactive({
+  show: false,
+  tabs: {
+    list: [],
+    current: 0,
+  },
+  imgList: [],
+  des: supportContent,
+});
+
+for (let index = 0; index < supportList.length; index++) {
+  supportOption.tabs.list.push({
+    key: parseInt(index),
+    title: supportList[index].label,
+    color:supportList[index].color,
+    icon: supportList[index].icon,
+  });
+  supportOption.imgList.push(supportList[index].img);
+}
+
+const currentSupportImg = computed(() => {
+  const index = supportOption.tabs.current;
+  const list = supportOption.imgList;
+  return list[index] ?? list[0];
+});
+
+const TabsCurrentColor = computed(()=>{
+  return supportOption.tabs.list[supportOption.tabs.current]?.color??"primary"
+})
+
+const ColClick = (item: any): void => {
+  if (item.type == "route") {
+    // #ifdef H5
+    location.href = item.url;
+    // #endif
+  } else if (item.type == "support") {
+    supportOption.show = true;
+  }
+};
+</script>

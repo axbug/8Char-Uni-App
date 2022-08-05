@@ -1,7 +1,18 @@
 import { defineStore } from 'pinia';
-import { useYunStore } from './yun.ts';
-import { Solar } from 'lunar-javascript';
-import utils from '@/tool/utils.ts';
+import { useYunStore } from './yun';
+import { Solar, LunarUtil } from 'lunar-javascript';
+import { ComputedWuXing, DeArray, TianGanToShiShen } from '@/tool/utils';
+import { wuxingLabelList } from '@/config/data/wuxing.ts';
+import { wangshuai as wuxingWangshuai, colorList as wuxingColorList } from '@/config/data/wuxing';
+
+function ComputedCangganColor(list: string[]): string[] {
+	const colors: string[] = [];
+	for (let item of list) {
+		const index = wuxingLabelList.indexOf(DeArray(item, 'canggan').substr(1, 1));
+		colors.push(wuxingColorList[index]);
+	}
+	return colors;
+}
 
 export const useBaziStore = defineStore('bazi', {
 	state: () => {
@@ -10,6 +21,8 @@ export const useBaziStore = defineStore('bazi', {
 			yinli: null,
 			yangli: null,
 			xinzuo: null,
+			chineseZodiac: null,
+			sect: 1,
 			// 四柱
 			sizhu: {
 				year: null,
@@ -38,13 +51,6 @@ export const useBaziStore = defineStore('bazi', {
 				day: null,
 				time: null
 			},
-			// 五行
-			wuxing: {
-				year: null,
-				month: null,
-				day: null,
-				time: null
-			},
 			// 纳音
 			nayin: {
 				year: null,
@@ -52,6 +58,8 @@ export const useBaziStore = defineStore('bazi', {
 				day: null,
 				time: null
 			},
+			// 胎
+			tai: [],
 			// 地势
 			dishi: {
 				year: null,
@@ -80,14 +88,43 @@ export const useBaziStore = defineStore('bazi', {
 				day: null,
 				time: null
 			},
-			start_yun: {
+			// 空亡
+			kongwang: {
+				year: null,
+				month: null,
+				day: null,
+				time: null
+			},
+			// 藏干颜色
+			cangganColor: {
+				year: [],
+				month: [],
+				day: [],
+				time: []
+			},
+			// 起运
+			startYun: {
 				year: null,
 				month: null,
 				day: null,
 				hour: null,
 				solar: null
 			},
-			table: []
+			// 五行能量
+			wuxingNum: {
+				include: {
+					list: [],
+					total: 0
+				},
+				ninclude: {
+					list: [],
+					total: 0
+				},
+				title: [],
+				wangshuai: []
+			},
+			// 节气
+			jieqi: {}
 		};
 	},
 	actions: {
@@ -96,9 +133,14 @@ export const useBaziStore = defineStore('bazi', {
 
 			const solar = Solar.fromDate(new Date(timestamp));
 			const lunar = solar.getLunar();
-			const bazi = lunar.getEightChar();
-			const yun = bazi.getYun(gender);
+
+			var bazi = lunar.getEightChar();
+			bazi.setSect(data.sect);
+
+			const yun = bazi.getYun(gender, data.sect);
+			this.sect = data.sect;
 			this.yun = yun;
+			this.chineseZodiac = lunar.getYearShengXiao();
 
 			this.yinli = lunar.getYear() + '年' + lunar.getMonthInChinese() + '月' + lunar.getDayInChinese() + '  ' + bazi.getTimeZhi() + '时';
 			this.yangli = solar.toYmdHms().replace(/-/g, '/');
@@ -107,7 +149,7 @@ export const useBaziStore = defineStore('bazi', {
 
 			this.lunar = {
 				year: lunar.getYear(),
-				month: lunar.getMonth(),
+				month: Math.abs(lunar.getMonth()),
 				day: lunar.getDay(),
 				time: lunar.getHour() + ':' + lunar.getMinute(),
 				hour: lunar.getHour(),
@@ -147,19 +189,24 @@ export const useBaziStore = defineStore('bazi', {
 				time: bazi.getTimeZhi()
 			};
 
-			this.wuxing = {
-				year: bazi.getYearWuXing(),
-				month: bazi.getMonthWuXing(),
-				day: bazi.getDayWuXing(),
-				time: bazi.getTimeWuXing()
-			};
-
 			this.nayin = {
 				year: bazi.getYearNaYin(),
 				month: bazi.getMonthNaYin(),
 				day: bazi.getDayNaYin(),
 				time: bazi.getTimeNaYin()
 			};
+
+			const taixi = (() => {
+				var ganIndex = 2 == data.sect ? lunar.getDayGanIndexExact2() : lunar.getDayGanIndexExact();
+				var zhiIndex = 2 == data.sect ? lunar.getDayZhiIndexExact2() : lunar.getDayZhiIndexExact();
+				return LunarUtil.HE_GAN_5[ganIndex] + LunarUtil.HE_ZHI_6[zhiIndex];
+			})();
+			this.tai = [
+				[bazi.getTaiYuan(), bazi.getTaiYuanNaYin()],
+				[taixi, LunarUtil.NAYIN[taixi]],
+				[bazi.getMingGong(), bazi.getMingGongNaYin()],
+				[bazi.getShenGong(), bazi.getShenGongNaYin()]
+			];
 
 			this.dishi = {
 				year: bazi.getYearDiShi(),
@@ -169,16 +216,24 @@ export const useBaziStore = defineStore('bazi', {
 			};
 
 			this.canggan = {
-				year: bazi.getYearHideGan(),
-				month: bazi.getMonthHideGan(),
-				day: bazi.getDayHideGan(),
-				time: bazi.getTimeHideGan()
+				year: DeArray(bazi.getYearHideGan(), 'canggan', true),
+				month: DeArray(bazi.getMonthHideGan(), 'canggan', true),
+				day: DeArray(bazi.getDayHideGan(), 'canggan', true),
+				time: DeArray(bazi.getTimeHideGan(), 'canggan', true)
+			};
+
+			this.cangganColor = {
+				year: ComputedCangganColor(bazi.getYearHideGan()),
+				month: ComputedCangganColor(bazi.getMonthHideGan()),
+				day: ComputedCangganColor(bazi.getDayHideGan()),
+				time: ComputedCangganColor(bazi.getTimeHideGan())
 			};
 
 			this.zhuxing = {
 				year: bazi.getYearShiShenGan(),
 				month: bazi.getMonthShiShenGan(),
-				day: bazi.getDayShiShenGan(),
+				// day: bazi.getDayShiShenGan(),
+				day: gender == 1 ? '元男' : '元女',
 				time: bazi.getTimeShiShenGan()
 			};
 
@@ -189,7 +244,14 @@ export const useBaziStore = defineStore('bazi', {
 				time: bazi.getTimeShiShenZhi()
 			};
 
-			this.start_yun = {
+			this.kongwang = {
+				year: bazi.getYearXunKong(),
+				month: bazi.getMonthXunKong(),
+				day: bazi.getDayXunKong(),
+				time: bazi.getTimeXunKong()
+			};
+
+			this.startYun = {
 				year: yun.getStartYear(),
 				month: yun.getStartMonth(),
 				day: yun.getStartDay(),
@@ -197,89 +259,32 @@ export const useBaziStore = defineStore('bazi', {
 				solar: yun.getStartSolar().toYmd()
 			};
 
-			const table = [];
-
-			table.push({
-				data: {
-					name: '主星',
-					year: this.zhuxing.year,
-					month: this.zhuxing.month,
-					day: gender == 1 ? '元男' : '元女',
-					time: this.zhuxing.time
+			let wangshuai = [];
+			for (let zhis in wuxingWangshuai) {
+				let ws = wuxingWangshuai[zhis];
+				if (zhis.indexOf(bazi.getMonthZhi()) != -1) {
+					wangshuai = ws;
+					break;
 				}
-			});
+			}
 
-			table.push({
-				data: {
-					name: '天干',
-					year: this.tiangan.year,
-					month: this.tiangan.month,
-					day: this.tiangan.day,
-					time: this.tiangan.time
-				}
-			});
+			this.wuxingNum = {
+				include: ComputedWuXing(bazi, 'all'),
+				ninclude: ComputedWuXing(bazi),
+				title: TianGanToShiShen(bazi.getDayWuXing().substr(0, 1)),
+				wangshuai: wangshuai
+			};
 
-			table.push({
-				data: {
-					name: '地支',
-					year: this.dizhi.year,
-					month: this.dizhi.month,
-					day: this.dizhi.day,
-					time: this.dizhi.time
-				}
-			});
-
-			table.push({
-				data: {
-					name: '五行',
-					year: this.wuxing.year,
-					month: this.wuxing.month,
-					day: this.wuxing.day,
-					time: this.wuxing.time
-				}
-			});
-
-			table.push({
-				data: {
-					name: '藏干',
-					year: utils.DeArray(this.canggan.year, 'canggan'),
-					month: utils.DeArray(this.canggan.month, 'canggan'),
-					day: utils.DeArray(this.canggan.day, 'canggan'),
-					time: utils.DeArray(this.canggan.time, 'canggan')
-				}
-			});
-
-			table.push({
-				data: {
-					name: '副星',
-					year: utils.DeArray(this.fuxing.year),
-					month: utils.DeArray(this.fuxing.month),
-					day: utils.DeArray(this.fuxing.day),
-					time: utils.DeArray(this.fuxing.time)
-				}
-			});
-
-			table.push({
-				data: {
-					name: '星运',
-					year: this.dishi.year,
-					month: this.dishi.month,
-					day: this.dishi.day,
-					time: this.dishi.time
-				}
-			});
-
-			table.push({
-				data: {
-					name: '纳音',
-					year: this.nayin.year,
-					month: this.nayin.month,
-					day: this.nayin.day,
-					time: this.nayin.time
-				}
-			});
-
-			this.table = table;
+			const prevJieQi = lunar.getPrevJie();
+			const preJieQiSolar = prevJieQi.getSolar();
+			const nextJieQi = lunar.getNextJie();
+			const nextJieQiSolar = nextJieQi.getSolar();
+			this.jieqi = {
+				preName: prevJieQi.getName(),
+				preTime: preJieQiSolar.toYmdHms().replace(/-/g, '/'),
+				nextName: nextJieQi.getName(),
+				nextTime: nextJieQiSolar.toYmdHms().replace(/-/g, '/'),
+			};
 
 			useYunStore().pull(yun.getDaYun());
 		}

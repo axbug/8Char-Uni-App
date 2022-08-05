@@ -1,7 +1,7 @@
 {
-    "name" : "八字排盘 - 阿轩的Bug",
-    "appid" : "",
-    "description" : "八字排盘",
+    "name" : "八字排盘",
+    "appid" : "__UNI__EB568D0",
+    "description" : "可根据已知时间、四柱进行排盘。 排盘界面分命主信息、基本命盘、专业细盘和在线批命四个界面。排盘数据包含四柱、十神、藏干、纳音、星运、空亡、天罡称骨、五行数据、大运流年、古籍参考等信息。支持浅色模式、深色模式切换",
     "versionName" : "1.0.0",
     "versionCode" : "100",
     "transformPx" : false,
@@ -38,21 +38,64 @@
                     "<uses-permission android:name=\"android.permission.FLASHLIGHT\"/>",
                     "<uses-feature android:name=\"android.hardware.camera\"/>",
                     "<uses-permission android:name=\"android.permission.WRITE_SETTINGS\"/>"
-                ]
+                ],
+                "abiFilters" : [ "armeabi-v7a", "arm64-v8a", "x86" ]
             },
             /* ios打包配置 */
-            "ios" : {},
+            "ios" : {
+                "dSYMs" : false,
+                "idfa" : false
+            },
             /* SDK配置 */
-            "sdkConfigs" : {}
-        }
+            "sdkConfigs" : {
+                "ad" : {}
+            },
+            "icons" : {
+                "android" : {
+                    "hdpi" : "unpackage/res/icons/72x72.png",
+                    "xhdpi" : "unpackage/res/icons/96x96.png",
+                    "xxhdpi" : "unpackage/res/icons/144x144.png",
+                    "xxxhdpi" : "unpackage/res/icons/192x192.png"
+                },
+                "ios" : {
+                    "appstore" : "unpackage/res/icons/1024x1024.png",
+                    "ipad" : {
+                        "app" : "unpackage/res/icons/76x76.png",
+                        "app@2x" : "unpackage/res/icons/152x152.png",
+                        "notification" : "unpackage/res/icons/20x20.png",
+                        "notification@2x" : "unpackage/res/icons/40x40.png",
+                        "proapp@2x" : "unpackage/res/icons/167x167.png",
+                        "settings" : "unpackage/res/icons/29x29.png",
+                        "settings@2x" : "unpackage/res/icons/58x58.png",
+                        "spotlight" : "unpackage/res/icons/40x40.png",
+                        "spotlight@2x" : "unpackage/res/icons/80x80.png"
+                    },
+                    "iphone" : {
+                        "app@2x" : "unpackage/res/icons/120x120.png",
+                        "app@3x" : "unpackage/res/icons/180x180.png",
+                        "notification@2x" : "unpackage/res/icons/40x40.png",
+                        "notification@3x" : "unpackage/res/icons/60x60.png",
+                        "settings@2x" : "unpackage/res/icons/58x58.png",
+                        "settings@3x" : "unpackage/res/icons/87x87.png",
+                        "spotlight@2x" : "unpackage/res/icons/80x80.png",
+                        "spotlight@3x" : "unpackage/res/icons/120x120.png"
+                    }
+                }
+            }
+        },
+        "nvueLaunchMode" : "",
+        "renderer" : "native"
     },
     /* 快应用特有相关 */
     "quickapp" : {},
     /* 小程序特有相关 */
     "mp-weixin" : {
-        "appid" : "",
+        "appid" : "wx37b1782176938c52",
         "setting" : {
-            "urlCheck" : false
+            "urlCheck" : false,
+            "es6" : false,
+            "postcss" : false,
+            "minified" : true
         },
         "usingComponents" : true
     },
@@ -63,7 +106,12 @@
         "usingComponents" : true
     },
     "mp-toutiao" : {
-        "usingComponents" : true
+        "usingComponents" : true,
+        "setting" : {
+            "es6" : true,
+            "minified" : true,
+            "postcss" : true
+        }
     },
     "uniStatistics" : {
         "enable" : false
@@ -82,6 +130,15 @@
             "treeShaking" : {
                 "enable" : true
             }
+        }
+    },
+    "locale" : "zh-Hans",
+    "fallbackLocale" : "zh-Hans",
+    "mp-qq" : {
+        "setting" : {
+            "minified" : true,
+            "postcss" : true,
+            "es6" : true
         }
     }
 }

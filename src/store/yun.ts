@@ -1,155 +1,156 @@
 import { defineStore } from 'pinia';
 import { Solar, Lunar } from 'lunar-javascript';
-import utils from '@/tool/utils.ts';
+import { GetShiShen } from '@/tool/utils';
 
 export const useYunStore = defineStore('yun', {
 	state: () => {
 		return {
 			// 列表
 			original: [],
-			dayun_list: [],
-			year_list: [],
-			month_list: [],
-			day_list: [],
-			time_list: [],
+			dayunList: [],
+			yearList: [],
+			monthList: [],
+			dayList: [],
+			timeList: [],
 			// 索引
-			current_index: 0,
-			year_index: 0,
-			month_index: 0,
-			day_index: 0,
-			time_index: 0
+			currentIndex: 0,
+			yearIndex: 0,
+			monthIndex: 0,
+			dayIndex: 0,
+			timeIndex: 0
 		};
 	},
 	actions: {
-		pull(original) {
+		pull(original: any) {
 			this.original = original;
-			this.current_index = 0;
-			this.year_index = 0;
-			this.month_index = 0;
-			this.day_index = 0;
-			this.time_index = 0;
-			this.dayun_list = [];
-			this.year_list = [];
-			this.month_list = [];
-			this.day_list = [];
-			this.time_list = [];
+			this.currentIndex = 0;
+			this.yearIndex = 0;
+			this.monthIndex = 0;
+			this.dayIndex = 0;
+			this.timeIndex = 0;
+			this.dayunList = [];
+			this.yearList = [];
+			this.monthList = [];
+			this.dayList = [];
+			this.timeList = [];
 			this.resolveDaYun();
 		},
 		// 大运
 		resolveDaYun() {
 			const original = this.original;
-			const dayun_list = [];
+			const dayunList = [];
 
 			for (let i = 0; i < original.length; i++) {
 				const item = original[i];
-				const ganzhi = item.getGanZhi() || '小运';
-				dayun_list.push({
-					start_year: item.getStartYear(),
-					start_age: item.getStartAge(),
+				const ganzhi = item.getGanZhi() || '童限';
+				dayunList.push({
+					startYear: item.getStartYear(),
+					startAge: item.getStartAge(),
 					ganzhi: ganzhi,
-					shishen: ganzhi == '小运' ? '小运' : utils.GetShiShen(ganzhi)
+					shishen: ganzhi == '童限' ? '童限' : GetShiShen(ganzhi)
 				});
 			}
 
-			this.dayun_list = dayun_list;
-			this.year_index = 0;
-			this.month_index = 0;
-			this.day_index = 0;
-			this.time_index = 0;
-			this.year_list = [];
-			this.month_list = [];
-			this.day_list = [];
-			this.time_list = [];
+			this.dayunList = dayunList;
+			this.yearIndex = 0;
+			this.monthIndex = 0;
+			this.dayIndex = 0;
+			this.timeIndex = 0;
+			this.yearList = [];
+			this.monthList = [];
+			this.dayList = [];
+			this.timeList = [];
 			this.resolveLiuYear();
 		},
 		// 小运（流年）
 		resolveLiuYear() {
 			const original = this.original;
-			const current_index = this.current_index;
+			const currentIndex = this.currentIndex;
 
-			const dayun = original[current_index];
-			const xiaoyun = dayun.getXiaoYun();
+			const dayun = original[currentIndex];
 			const year = dayun.getLiuNian();
-			const year_list = [];
+			const yearList = [];
 
 			for (let i = 0; i < year.length; i++) {
 				const item = year[i];
 				const ganzhi = item.getGanZhi();
-				year_list.push({
+				yearList.push({
 					year: item.getYear(),
 					ganzhi: ganzhi,
 					age: item.getAge(),
-					shishen: utils.GetShiShen(ganzhi)
+					shishen: GetShiShen(ganzhi)
 				});
 			}
 
-			this.year_list = year_list;
-			this.month_index = 0;
-			this.day_index = 0;
-			this.time_index = 0;
-			this.month_list = [];
-			this.day_list = [];
-			this.time_list = [];
+			this.yearList = yearList;
+			this.monthIndex = 0;
+			this.dayIndex = 0;
+			this.timeIndex = 0;
+			this.monthList = [];
+			this.dayList = [];
+			this.timeList = [];
 
 			this.resolveLiuMonth();
 		},
 		resolveLiuMonth() {
 			const original = this.original;
-			const current_index = this.current_index;
-			const year_index = this.year_index;
+			const currentIndex = this.currentIndex;
+			const yearIndex = this.yearIndex;
 
-			const dayun = original[current_index];
+			const dayun = original[currentIndex];
 			const year = dayun.getLiuNian();
 
-			const month = year[year_index].getLiuYue();
+			if (year.length == 0) return;
 
-			const month_list = [];
-			const jieqi = year[year_index].getLunar().getJieQiTable();
+			const month = year[yearIndex].getLiuYue();
+
+			const monthList = [];
+			const jieqi = year[yearIndex].getLunar().getJieQiTable();
 			const map = ['立春', '惊蛰', '清明', '立夏', '芒种', '小暑', '立秋', '白露', '寒露', '立冬', '大雪', 'XIAO_HAN'];
 
 			for (let i = 0; i < month.length; i++) {
 				const item = month[i];
 				const _jieqi = jieqi[map[i]];
 				const ganzhi = item.getGanZhi();
-				const _next_jieqi = i == 11 ? jieqi[map[0]] : jieqi[map[i + 1]];
-				month_list.push({
+				const _nextJieqi = i == 11 ? jieqi[map[0]] : jieqi[map[i + 1]];
+				monthList.push({
 					original: _jieqi,
-					year: year[year_index].getYear(),
+					year: year[yearIndex].getYear(),
 					jieqi: i == 11 ? '小寒' : map[i],
-					next_jieqi_date: _next_jieqi.getMonth() + '/' + _next_jieqi.getDay(),
-					date: _jieqi.getMonth() + '/' + _jieqi.getDay(),
+					nextJieqiDate: Math.abs(_nextJieqi.getMonth()) + '/' + _nextJieqi.getDay(),
+					date: Math.abs(_jieqi.getMonth()) + '/' + _jieqi.getDay(),
 					ganzhi: ganzhi,
-					shishen: utils.GetShiShen(ganzhi)
+					shishen: GetShiShen(ganzhi)
 					// month: item.getMonthInChinese()
 				});
 			}
 
-			this.month_list = month_list;
-			this.day_index = 0;
-			this.time_index = 0;
-			this.day_list = [];
-			this.time_list = [];
+			this.monthList = monthList;
+			this.dayIndex = 0;
+			this.timeIndex = 0;
+			this.dayList = [];
+			this.timeList = [];
 
 			// this.resolveLiuDay()
 		},
 		resolveLiuDay() {
-			const year_list = this.year_list;
-			const year_index = this.year_index;
-			const month_list = this.month_list;
-			const month_index = this.month_index;
+			const yearList = this.yearList;
+			const yearIndex = this.yearIndex;
+			const monthList = this.monthList;
+			const monthIndex = this.monthIndex;
 
-			const year = year_list[year_index].year;
-			const date = month_list[month_index].date;
+			const year = yearList[yearIndex].year;
+			const date = monthList[monthIndex].date;
 
-			const _year = month_index < 10 ? year : year + 1;
-			const current_date = year + '/' + date;
-			const next_date = _year + '/' + month_list[month_index].next_jieqi_date;
-			const day_list = [];
+			const _year = monthIndex < 10 ? year : year + 1;
+			const currentDate = (monthIndex < 11 ? year : year + 1) + '/' + date;
+			const nextDate = _year + '/' + monthList[monthIndex].nextJieqiDate;
+			const dayList = [];
 
-			let _date_ = new Date(current_date);
-			let _next_date = new Date(next_date);
+			let _date_ = new Date(currentDate);
+			let _nextDate = new Date(nextDate);
 
-			while (_date_ <= _next_date) {
+			while (_date_ < _nextDate) {
 				const solar = Solar.fromDate(new Date(_date_));
 				_date_ = new Date(
 					solar
@@ -165,30 +166,30 @@ export const useYunStore = defineStore('yun', {
 					gan: lunar.getDayGan(),
 					zhi: lunar.getDayZhi(),
 					ganzhi: ganzhi,
-					shishen: utils.GetShiShen(ganzhi)
+					shishen: GetShiShen(ganzhi)
 				};
-				day_list.push(params);
+				dayList.push(params);
 			}
 
-			this.day_list = day_list;
-			this.time_index = 0;
-			this.time_list = [];
+			this.dayList = dayList;
+			this.timeIndex = 0;
+			this.timeList = [];
 
 			// this.resolveLiuTime()
 		},
 		resolveLiuTime() {
-			const day_list = this.day_list;
-			const day_index = this.day_index;
+			const dayList = this.dayList;
+			const dayIndex = this.dayIndex;
 
-			if (day_list.length == 0) return;
-			const { date: _date } = day_list[day_index];
+			if (dayList.length == 0) return;
+			const { date: _date } = dayList[dayIndex];
 
 			const date = _date + ' 00:00:00';
-			const start_time = new Date(date.replace(/-/g, '/').replace(/T/g, ' ')).getTime() - 60 * 60 * 1000;
+			const startTime = new Date(date.replace(/-/g, '/').replace(/T/g, ' ')).getTime() - 60 * 60 * 1000;
 
-			const time_list = [];
+			const timeList = [];
 			for (let i = 0; i < 12; i++) {
-				const _date = new Date(start_time + i * 2 * 60 * 60 * 1000);
+				const _date = new Date(startTime + i * 2 * 60 * 60 * 1000);
 				const lunar = Lunar.fromDate(new Date(_date));
 				const ganzhi = lunar.getTimeInGanZhi();
 				const params = {
@@ -196,12 +197,12 @@ export const useYunStore = defineStore('yun', {
 					zhi: lunar.getTimeZhi(),
 					ganzhi: ganzhi,
 					time: lunar.getHour() + ':00',
-					shishen: utils.GetShiShen(ganzhi)
+					shishen: GetShiShen(ganzhi)
 				};
-				time_list.push(params);
+				timeList.push(params);
 			}
 
-			this.time_list = time_list;
+			this.timeList = timeList;
 		}
 	}
 });

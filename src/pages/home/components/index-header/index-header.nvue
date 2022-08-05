@@ -1,0 +1,17 @@
+<template>
+	<tm-sheet :margin="[0, 0]" :padding="[18, 0]" :round="0" :shadow="0">
+		<tm-row :gutter="0">
+			<tm-col :col="2">
+				<tm-image :height="138" :width="138" class="rounded" :src="GetFileUrl('static/icon/site/logo.svg')"></tm-image>
+			</tm-col>
+			<tm-col :height="168" _class="flex-col-center-start" align="start" :col="8" class="pl-20">
+				<tm-text :font-size="38" _class="text-weight-b" class="flex-start pb-10" label="四柱排盘工具"></tm-text>
+				<tm-text class="flex-start" label="专业命理师首选四柱排盘工具"></tm-text>
+			</tm-col>
+		</tm-row>
+	</tm-sheet>
+</template>
+
+<script lang="ts" setup>
+import { GetFileUrl } from '@/tool/utils';
+</script>

@@ -7,27 +7,28 @@
 			"^yxn-(.*)": "@/yxbug-cn/yxn-$1/yxn-$1.nvue"
 		}
 	},
-	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
-		{
-			"path": "pages/index/index",
+	"pages": [{
+			"path": "pages/home/index",
 			"style": {
-				"navigationBarTitleText": "八字排盘 - 阿轩的Bug",
-				"enablePullDownRefresh": false,
-				"navigationStyle": "custom"
+				"navigationBarTitleText": "八字排盘-阿轩的Bug",
+				"navigationStyle": "custom",
+				"titlePenetrate": "YES",
+				"transparentTitle": "always"
 			}
 		},
 		{
-			"path": "pages/index/detail",
+			"path": "pages/detail/index",
 			"style": {
-				"navigationBarTitleText": "八字排盘 - 阿轩的Bug",
-				"enablePullDownRefresh": false,
-				"navigationStyle": "custom"
+				"navigationBarTitleText": "八字排盘-阿轩的Bug",
+				"navigationStyle": "custom",
+				"titlePenetrate": "YES",
+				"transparentTitle": "always"
 			}
 		}
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "八字排盘 - 阿轩的Bug",
+		"navigationBarTitleText": "八字排盘-阿轩的Bug",
 		"navigationBarBackgroundColor": "#FFFFFF",
 		"backgroundColor": "#FFFFFF"
 	},

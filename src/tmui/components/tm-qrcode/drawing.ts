@@ -10,6 +10,7 @@ import {generateFrame} from "./qrcode"
 var Canvas =null
 ,Image = null;
 
+
 /**
  * @param size {Number} canvassize
  * @param lw {Number} logo width
@@ -30,12 +31,13 @@ function computeLogoPos(size, lw, lh) {
  * return {WriteSteam}
  */
 export async function qr(ctx,option,canvas2d) {
+
 	if(!ctx) return;
-	uni.showLoading({title:"...",mask:true})
+	
+	
 	var defaults = Object.assign({
 		...qrOptsDefault
 	}, option)
-
 	,size = defaults.size
 	,borderWidth = size * defaults.border
 	,qrSize = size - borderWidth * 2
@@ -53,9 +55,12 @@ export async function qr(ctx,option,canvas2d) {
 
 	// var cvs = ctx
 	var c2d = ctx
-	
-	c2d.width  = size
-	c2d.height = size
+	if(!c2d?.width){
+		c2d.width  = size
+	}
+	if(!c2d?.height){
+		c2d.height = size
+	}		
 	//base background
 	fillStyle(c2d,defaults.baseColor,linearDir)
 	c2d.fillRect(0, 0, size, size)
@@ -74,6 +79,7 @@ export async function qr(ctx,option,canvas2d) {
 		}else{
 			c2d.drawImage(backgroundImage, 0, 0, size, size)
 		}
+		
 	}
 
 	//now draw qrcode
@@ -116,15 +122,17 @@ export async function qr(ctx,option,canvas2d) {
 function fillStyle(ctx,value,linearDir="left"){
 	//绘制渐变
 	if(typeof value == 'object' && Array.isArray(value)){
-		var gradient = ctx.createLinearGradient(ctx.width / 2, 0, ctx.width / 2, ctx.width);
+		let w2w = parseInt(String(ctx.width/2))
+		console.log(w2w)
+		var gradient = ctx.createLinearGradient(w2w, 0, w2w, ctx.width);
 		if(linearDir=="left"){
-			gradient = ctx.createLinearGradient( ctx.width, ctx.width/2,0, ctx.width / 2);
+			gradient = ctx.createLinearGradient( ctx.width, w2w,0, w2w);
 		}else if(linearDir=="bottom"){
-			gradient = ctx.createLinearGradient(ctx.width / 2, 0, ctx.width / 2, ctx.width);
+			gradient = ctx.createLinearGradient(w2w, 0, w2w, ctx.width);
 		}else if(linearDir=="top"){
-			gradient = ctx.createLinearGradient(ctx.width / 2, ctx.width, ctx.width / 2, 0);
+			gradient = ctx.createLinearGradient(w2w, ctx.width,w2w, 0);
 		}else if(linearDir=="right"){
-			gradient = ctx.createLinearGradient(0, ctx.width / 2, ctx.width, ctx.width / 2);
+			gradient = ctx.createLinearGradient(0, w2w, ctx.width, w2w);
 		}else if(linearDir=="tlbr"){
 			gradient = ctx.createLinearGradient(0, 0, ctx.width, ctx.width);
 		}else if(linearDir=="trbl"){
@@ -140,6 +148,7 @@ function fillStyle(ctx,value,linearDir="left"){
 			if(i==len-1) stop = 1;
 			gradient.addColorStop(stop, value[i]);
 		}
+		console.log(gradient)
 		// gradient.addColorStop(1, value[1]);
 		// #ifdef APP-NVUE || MP-WEIXIN || MP-ALIPAY || MP-QQ
 		ctx.strokeStyle = gradient;
@@ -162,6 +171,9 @@ function fillStyle(ctx,value,linearDir="left"){
 }
 
 function drawImage(canvas2d,ctx,opts){
+	uni.showLoading({
+		title:"..."
+	})
 	let img = canvas2d.createImage()
 	img.width = opts.width;
 	img.height = opts.height;
@@ -169,6 +181,7 @@ function drawImage(canvas2d,ctx,opts){
 	return new Promise(res=>{
 		img.onload = function(){
 			ctx.drawImage(img, opts.x, opts.y, opts.width, opts.height)
+			uni.hideLoading()
 			res(true)
 		}
 	})

@@ -6,10 +6,10 @@
         ]"
     >
         
-        <view v-if="props.direction=='horizontal'" class="flex flex-row " style="width:80rpx" :class="[index==0?'flex-row-top-start':'',index==_stepArray.length-1?'flex-row-top-end':'',index<_stepArray.length-1&&index>0?'flex-row-top-center':'']" v-for="(item,index) in _stepArray" :key="index">
+        <view v-if="props.direction=='horizontal'" class="flex flex-row relative" style="width:80rpx" :class="[index==0?'flex-row-top-start':'',index==_stepArray.length-1?'flex-row-top-end':'',index<_stepArray.length-1&&index>0?'flex-row-top-center':'']" v-for="(item,index) in _stepArray" :key="index">
             <TmSheet1 :followTheme="props.followTheme" :color="props.color" :round="6" :margin="[0,0]" :padding="[0,0]" :width="12" :height="12" text :border="1"></TmSheet1>
         </view>
-         <view v-if="props.direction!='horizontal'" :translate="true" class="flex flex-row flex-row-center-start" style="width:80rpx"  v-for="(item,index) in _stepArray" :key="index">
+         <view v-if="props.direction!='horizontal'" :translate="true" class="flex flex-row flex-row-center-start relative" style="width:80rpx"  v-for="(item,index) in _stepArray" :key="index">
             <TmSheet1 :followTheme="props.followTheme" :round="6" :margin="[0,0]" :padding="[0,0]" :width="12" :height="12" color="primary" text :border="1"></TmSheet1>
         </view>
     </view>

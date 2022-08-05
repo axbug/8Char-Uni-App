@@ -18,3 +18,11 @@ export interface coltimeData {
     type:timeDetailType,//数据格式类型，如上 timeDetailType
     data:Array<number>
 }
+export interface timeArrayType {
+	year:Array<number>,
+	month:Array<number>,
+	date:Array<number>,
+	hour:Array<number>,
+	minute:Array<number>,
+	second:Array<number>,
+}

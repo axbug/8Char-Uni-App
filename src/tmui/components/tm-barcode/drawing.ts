@@ -30,6 +30,10 @@ export interface BarcodeObjType {
 	data: string,
 	options: Baroptions
 }
+let isAndroid = false
+// #ifdef APP-NVUE
+isAndroid =  uni.getSystemInfoSync().osName=='android';
+// #endif
 var ctx:CanvasRenderingContext2D;
 function drawCanvasBarcode(options: Baroptions = JsBarcodeOptions, encoding: BarcodeObjType,is2d=false,canvasWidth=300) {
 	var binary = encoding.data;
@@ -60,15 +64,21 @@ function drawCanvasBarcode(options: Baroptions = JsBarcodeOptions, encoding: Bar
 	if(!is2d){
 		ctx.draw()
 	}
+	
 }
 
 function drawCanvasText(options: Baroptions = JsBarcodeOptions, encoding: BarcodeObjType,is2d=false,canvasWidth=300) {
 	ctx.clearRect(0,0,canvasWidth,options.height+40)
+	var font = ""
 	// #ifdef APP-NVUE
-	var font =  (options.fontSize*uni.getSystemInfoSync().pixelRatio) + "px " + options.font;
+	if(isAndroid){
+		font =  ((options.fontSize)) + "px " + options.font;
+	}else{
+		font =  ((options.fontSize)*uni.getSystemInfoSync().pixelRatio) + "px " + options.font;
+	}
 	// #endif
 	// #ifndef APP-NVUE
-	var font =  (options.fontSize) + "px " + options.font;
+	font =  (options.fontSize) + "px " + options.font;
 	// #endif
 	if (options.displayValue) {
 		var x, y;
@@ -103,6 +113,15 @@ function drawBarCode(context:CanvasRenderingContext2D,options: Baroptions = JsBa
 	ctx = context;
 	drawCanvasText(options, encoding,is2d,canvasWidth)
 	drawCanvasBarcode(options, encoding,is2d,canvasWidth)
+	// #ifdef APP-NVUE
+	if(isAndroid){
+		// 最新的sdk3.6.0首次需要绘制两次在安卓上才会显示。
+		setTimeout(function() {
+			drawCanvasText(options, encoding,is2d,canvasWidth)
+			drawCanvasBarcode(options, encoding,is2d,canvasWidth)
+		}, 50);
+	}
+	// #endif
 }
 
 

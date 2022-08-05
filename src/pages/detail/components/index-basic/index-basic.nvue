@@ -1,0 +1,11 @@
+<template>
+	<view class="mb-20">
+		<tm-sheet :margin="[0, 0]" :padding="[0, 10]" :round="3" :shadow="2"><tabel-view></tabel-view></tm-sheet>
+		<book-view></book-view>
+	</view>
+</template>
+
+<script lang="ts" setup>
+import TabelView from '../../components/index-basic-tabel/index-basic-tabel.nvue';
+import BookView from '../../components/index-basic-book/index-basic-book.nvue';
+</script>

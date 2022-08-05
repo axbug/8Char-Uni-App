@@ -10,13 +10,18 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "rootDir": "./src",
+    "baseUrl": "./",
     "lib": [
       "esnext",
       "dom"
     ],
     "types": [
-      "@dcloudio/types"
-    ]
+      "@dcloudio/types",
+      "pinia-plugin-persist-uni"
+    ],
+    "paths": {
+      "@/*": ["src/*"],
+    }
   },
   "include": [
     "tmui/**/*.ts",

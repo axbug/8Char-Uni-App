@@ -1,5 +1,5 @@
 /**
- * 上传文件。
+ * 预览图片
  * 作者：tmzdy
  * 联系：zhongjihan@sina.com
  * 预览图片。
@@ -10,14 +10,14 @@
  export function preview(url:string="",list:Array<string>=[],rangKey:string = "url"){
 	
 	if(!url){
-		uni.$tm.toast("参数有误");
+		uni.$tm.u.toast("参数有误");
 		return;
 	}
 	
 	if(arguments.length==1){
 		uni.previewImage({
 			current:url,
-			urls:list?list:[url]
+			urls:[url]
 		})
 	}else if(arguments.length===3){
 		
@@ -42,7 +42,7 @@
 			})
 		}
 	}else{
-		uni.$tm.toast("参数有误");
+		uni.$tm.u.toast("参数有误");
 	}
 	
 	

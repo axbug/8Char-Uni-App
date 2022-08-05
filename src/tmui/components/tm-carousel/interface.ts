@@ -1,7 +1,9 @@
 export interface listItem {
 	url?:string,
 	type?:listItemType,
-	img?:string //视频封面图片。
+	 //视频封面图片。
+	img?:string,
+	[key:string]:any
 }
 export type listItemTypeStr = "url"|"type"|"img"
 export enum listItemType {

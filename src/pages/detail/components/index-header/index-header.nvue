@@ -1,0 +1,40 @@
+<template>
+	<tm-sheet :margin="[0, 0]" :padding="[0, 0]">
+		<view class="flex flex-row flex-row-center-center pt-20">
+			<view class="flex flex-row flex-row-center-start">
+				<view id="index-main-header-left" class="mr-50 flex-row-center">
+					<view class="flex flex-row flex-row-center-center">
+						<tm-avatar :img="GetChineseZodiac(baziStore.chineseZodiac)" :round="26" :size="88"></tm-avatar>
+					</view>
+					<view class="mt-10 flex flex-row flex-row-center-center">
+						<tm-text :font-size="24" :label="userStore.hideName ? '**' : userStore.realname" class="flex-center text-weight-b"></tm-text>
+						<tm-icon
+							:font-size="24"
+							:name="userStore.hideName ? 'tmicon-eye-fill' : 'tmicon-eyeslash-fill'"
+							class="pl-10"
+							@click="userStore.hideName = !userStore.hideName"
+						></tm-icon>
+					</view>
+				</view>
+				<view id="index-main-header-right">
+					<view class="flex flex-row mb-20">
+						<view><tm-text :label="'阴历：' + baziStore.yinli" class="text-weight-b"></tm-text></view>
+						<view>
+							<tm-text :label="'（' + (userStore.gender ? '乾' : '坤') + '造）'" class="text-weight-b" color="blue-grey"></tm-text>
+						</view>
+					</view>
+					<view><tm-text :label="'阳历：' + HideTimeSecond(userStore.timestamp)" align="start" class="text-weight-b"></tm-text></view>
+				</view>
+			</view>
+		</view>
+	</tm-sheet>
+</template>
+
+<script lang="ts" setup>
+import { useBaziStore } from '@/store/bazi.ts';
+import { useUserStore } from '@/store/user.ts';
+import { HideTimeSecond, GetChineseZodiac } from '@/tool/utils.ts';
+
+const baziStore = useBaziStore();
+const userStore = useUserStore();
+</script>

@@ -1,11 +1,11 @@
 export interface qrOpts {
 	baseColor?: string //背景色,可以是数组颜色，将产生渐变。，渐变方向见下方：linearDir
 	,backgroundImage?: string //使用图片作为二维码背景。
-	,backgroundColor?: string // 背景色,可以是数组颜色，将产生渐变。，渐变方向见下方：linearDir
+	,backgroundColor?: string | Array<string> // 背景色,可以是数组颜色，将产生渐变。，渐变方向见下方：linearDir
 	,size?: number //图片大小
 	,border?: number //边 width = size * border,比如二维码是200,那么想要让边为10那么 border = 200*0.05
-	,str?: '' //内容
-	,forgroundColor?: string //前景色,也可以是["#FF0000","#FFFF00"]如果提供数组，将会绘制渐变色。
+	,str?: string //内容
+	,forgroundColor?: string | Array<string> //前景色,也可以是["#FF0000","#FFFF00"]如果提供数组，将会绘制渐变色。
 	,logoImage?: string //logo图片
 	,logoWidth?: number
 	,logoHeight?: number

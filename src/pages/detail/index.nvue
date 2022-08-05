@@ -1,0 +1,69 @@
+<template>
+	<tm-app>
+		<view id="header">
+			<yxn-nav-header></yxn-nav-header>
+			<header-view></header-view>
+			<tm-tabs v-model:active-name="tabsOption.current" :default-name="0" :height="300" :list="tabsOption.list" :width="750" align="center"></tm-tabs>
+		</view>
+		<scroll-view :style="{ height: scrollHeight }" scroll-y="true">
+			<index-main v-if="tabsOption.current === 0"></index-main>
+			<index-basic v-else-if="tabsOption.current === 1"></index-basic>
+			<index-speciali v-else-if="tabsOption.current === 2"></index-speciali>
+			<index-live v-else-if="tabsOption.current === 3"></index-live>
+		</scroll-view>
+	</tm-app>
+</template>
+
+<script lang="ts" setup>
+import { ref, reactive, onMounted, getCurrentInstance, nextTick } from 'vue';
+import HeaderView from './components/index-header/index-header.nvue';
+import IndexMain from './components/index-main/index-main.nvue';
+import IndexBasic from './components/index-basic/index-basic.nvue';
+import IndexSpeciali from './components/index-speciali/index-speciali.nvue';
+import IndexLive from './components/index-live/index-live.nvue';
+import { useUserStore } from '@/store/user.ts';
+
+const userStore = useUserStore();
+const tabsOption = reactive({
+	list: [
+		{ key: 0, title: '命主信息', icon: 'tmicon-tag-fill' },
+		{ key: 1, title: '基本命盘', icon: 'tmicon-chart-relation' },
+		{ key: 2, title: '专业细盘', icon: 'tmicon-applicationgroup' },
+		{ key: 3, title: '在线批命', icon: 'tmicon-md-planet' }
+	],
+	current: 0
+});
+
+const scrollHeight = ref('0px');
+
+onMounted(() => {
+	if (!userStore.timestamp) {
+		uni.redirectTo({
+			url: '/pages/home/index'
+		});
+	}
+	ComputedScrollHeight();
+});
+
+const ComputedScrollHeight = () => {
+  try{
+    const query = uni.createSelectorQuery();
+    const sysinfo = uni.getSystemInfoSync();
+    query
+        .select('#header')
+        .boundingClientRect(data => {
+          const height = sysinfo.safeArea.height - data.height;
+          // #ifdef MP-WEIXIN
+          scrollHeight.value = (height + 44) + 'px';
+          // #endif
+          // #ifndef MP-WEIXIN
+          scrollHeight.value = height + 'px';
+          // #endif
+          nextTick();
+        })
+        .exec();
+  }catch (e) {
+
+  }
+};
+</script>

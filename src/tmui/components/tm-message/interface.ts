@@ -1,13 +1,4 @@
-export enum modelType {
-	load = "load",
-	error = "error",
-	info = "info",
-	warn = "warn",
-	quest = "quest",
-	success = "success",
-	disabled = "disabled",
-	wait = "wait"
-}
+export type modelType = "load"|"error"|"info"|"warn"|"quest"|"success"|"disabled"|"wait"
 export interface config {
 	 duration?:number, //显示的时长
 	 icon?:string, //显示的图标

@@ -1,0 +1,62 @@
+<template>
+	<view class="py-30 px-20">
+			<tm-sheet :margin="[0, 0]" :round="3" :shadow="2">
+				<view v-if="!option.list.length">
+					<view class="flex flex-row flex-row-center-center">
+					<tm-image :height="400" :src="GetFileUrl(`static/icon/other/coding0.svg`)" :width="400" class="mt-40"></tm-image>
+				</view>
+				<tm-button block :label="'四 柱 解 析'" :loading="option.loading" @click="Computed"></tm-button>
+				</view>
+				<view v-else>
+					<view class="mb-40" v-for="item in option.list">
+
+						<view class="flex flex-1 flex-row flex-row-center-start mb-20">
+							<view class="pr-16"><tm-icon :font-size="28" :name="item.icon">></tm-icon></view>
+							<tm-text :font-size="28" _class="text-weight-b" :label="item.title"></tm-text>
+						</view>
+
+						<view v-for="litem in item.data">
+							<view><tm-text :label="litem.label" :font-size="26" _class="text-weight-b"></tm-text></view>
+							<view class="mt-10 mb-20"><tm-text :label="litem.content" :font-size="24"></tm-text></view>
+						</view>
+					</view>
+				</view>
+			</tm-sheet>
+	</view>
+</template>
+
+<script lang="ts" setup>
+import { ref } from 'vue';
+import { Solar } from 'lunar-javascript';
+import { useUserStore } from '@/store/user';
+import { GetFileUrl } from '@/tool/utils';
+import { GetDetail } from '@/model/computed';
+
+const option = ref({
+  loading: false,
+	list: []
+});
+
+const userStore = useUserStore();
+
+function Computed() {
+	uni.showLoading({
+		title:"网络请求中！",
+	})
+  option.value.loading = true;
+	GetDetail({ datetime: Solar.fromDate(new Date(userStore.timestamp)).toYmdHms(), sex: userStore.gender == 1 ? 1 : 2 }).then(res => {
+		option.value.loading = false;
+		option.value.list = res;
+		uni.hideLoading()
+	}).catch(()=>{
+    option.value.loading = false;
+		uni.hideLoading();
+		setTimeout(()=>{
+			uni.showToast({
+				title:"网络请求失败！",
+				icon:"none"
+			})
+		},1000)
+	})
+}
+</script>

@@ -1,0 +1,24 @@
+<template>
+	<view class="flex flex-row">
+		<view v-for="item in props.detail" :class="className" class="mb-16">
+			<tm-text :font-size="24" :label="item" class="text-weight-b"></tm-text>
+		</view>
+	</view>
+</template>
+
+<script lang="ts" setup>
+import { computed } from 'vue';
+
+const props = defineProps({
+	detail: {
+		type: Array,
+		default: []
+	}
+});
+
+const className = computed(() => {
+	const num = props.detail.length ? Math.floor(12 / props.detail.length) : 1;
+	const flex = `flex-${num}`;
+	return [flex];
+});
+</script>

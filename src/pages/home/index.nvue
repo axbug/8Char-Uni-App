@@ -1,0 +1,14 @@
+<template>
+	<tm-app>
+		<yxn-nav-header></yxn-nav-header>
+		<header-view></header-view>
+		<form-view></form-view>
+		<bottom-view></bottom-view>
+	</tm-app>
+</template>
+
+<script lang="ts" setup>
+import HeaderView from './components/index-header/index-header.nvue';
+import FormView from './components/index-form/index-form.vue';
+import BottomView from './components/index-bottom/index-bottom.nvue';
+</script>

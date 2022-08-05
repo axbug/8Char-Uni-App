@@ -1,0 +1,99 @@
+<template>
+	<tm-sheet v-if="userStore.timestamp" :margin="[20, 10]" :padding="[30, 30]" :round="3" :shadow="10">
+		<view v-if="userStore.timestamp" class="flex flex-row mb-16">
+			<view class="flex flex-1 flex-row flex-row-center-start">
+				<view class="pr-16"><tm-icon name="tmicon-key"></tm-icon></view>
+				<tm-text :font-size="28" class="text-weight-b" label="命主信息"></tm-text>
+			</view>
+			<!-- #ifdef H5 -->
+			<view class="flex flex-1 flex-row flex-row-center-end"><tm-icon name="tmicon-share1" @click="drawerShow = true"></tm-icon></view>
+			<!-- #endif -->
+		</view>
+
+		<!-- #ifdef H5 -->
+		<tm-drawer ref="drawer" v-model:show="drawerShow" :height="588" hideHeader placement="center">
+			<view>
+				<tm-text
+					:label="baziStore.yinli + '（' + (userStore.gender ? '乾' : '坤') + '造）'"
+					class="flex-center text-weight-b mt-30"
+				></tm-text>
+			</view>
+			<view class="flex flex-1 flex-row flex-row-center-center mt-10">
+				<tm-qrcode ref="qrcode" :option="qrcodeOption" @longpress="SaveQrcode"></tm-qrcode>
+			</view>
+			<view class="mt-10">
+				<view><tm-text class="flex-center text-weight-b" label="请长按二维码保存"></tm-text></view>
+			</view>
+		</tm-drawer>
+		<!-- #endif -->
+		<item-view v-for="item in detail" :detail="item"></item-view>
+	</tm-sheet>
+</template>
+
+<script lang="ts" setup>
+import {reactive, ref, computed} from 'vue';
+import ItemView from './index-main-detail-item.nvue';
+import {useBaziStore} from '@/store/bazi.ts';
+import {useUserStore} from '@/store/user.ts';
+import {HideTimeSecond} from '@/tool/utils.ts';
+
+const baziStore = useBaziStore();
+const userStore = useUserStore();
+
+const drawer = ref(null)
+const drawerShow = ref(false)
+const qrcode = ref(null)
+
+const qrcodeOption = ref({
+  logoImage: './static/icon/site/logo.gif',
+  str: computed(() => {
+		// #ifdef H5
+		return `${location.origin}${location.pathname}#/pages/home/index?time=${userStore.timestamp}&sex=${userStore.gender}`
+		// #endif
+    // #ifndef H5
+			return "";
+    // #endif
+  }),
+  logoWidth: 40,
+  logoHeight: 40,
+  size: 400,
+})
+
+const detail = reactive([
+  [`生肖：${baziStore.chineseZodiac}`, `性别：${userStore.gender ? '男' : '女'}`],
+  [`星座：${baziStore.xinzuo}`, `日空：${baziStore.kongwang.day}`],
+  [`胎元：${baziStore.tai[0]?.[0]} (${baziStore.tai[0]?.[1]})`, `胎息：${baziStore.tai[1]?.[0]} (${baziStore.tai[1]?.[1]})`],
+  [`命宫：${baziStore.tai[2]?.[0]} (${baziStore.tai[2]?.[1]})`, `身宫：${baziStore.tai[3]?.[0]} (${baziStore.tai[3]?.[1]})`],
+  [`${baziStore.jieqi.preName}：${HideTimeSecond(baziStore.jieqi.preTime)}`, `${baziStore.jieqi.nextName}：${HideTimeSecond(baziStore.jieqi.nextTime)}`]
+]);
+
+const SaveQrcode = () => {
+  qrcode.value.save().then(res => {
+    // #ifdef H5
+    drawerShow.value = false
+    SavePicture(res);
+    // #endif
+  })
+}
+
+// #ifdef H5
+function SavePicture(base64: string) {
+  const arr = base64.split(',');
+  const bytes = atob(arr[1]);
+  let ab = new ArrayBuffer(bytes.length);
+  let ia = new Uint8Array(ab);
+  for (let i = 0; i < bytes.length; i++) {
+    ia[i] = bytes.charCodeAt(i);
+  }
+  const blob = new Blob([ab], {type: 'application/octet-stream'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = new Date().valueOf() + ".png";
+  const e = document.createEvent('MouseEvents');
+  e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+  a.dispatchEvent(e);
+  URL.revokeObjectURL(url);
+}
+// #endif
+</script>

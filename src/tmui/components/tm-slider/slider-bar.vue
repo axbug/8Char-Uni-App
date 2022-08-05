@@ -4,7 +4,7 @@
     ?{width:props.width+'px',height:props.size+'rpx',left:props.x+'px',top:-props.size+'rpx'}:
     {height:props.width+'px',width:props.size+'rpx',top:props.x+'px'}
     ]"
-    :class="[
+    :class="['relative',
      props.direction=='horizontal'?'flex flex-col':'flex flex-row absolute'
     ]"
     >

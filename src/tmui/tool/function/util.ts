@@ -1,46 +1,202 @@
-
-// #ifdef H5
-// var clipboardJS = require( from ''./clipboardJS'');
-// import clipboardJS from './clipboardJS'
-// #endif
-import {ComponentInternalInstance} from 'vue'
+import { ComponentInternalInstance } from 'vue'
+interface Data {
+	[key: string]: any;
+}
 /**
  * 预览图片。
  @param {Object} url 必填 当前预览的图片链接。
  @param {Object} list 可以是url数组，也可以是对象，数据比如：["http:url"] or [{url:"https:url",...}]
  @param {Object} rangKey 如果list是对象数组，需要提供url字段。
  */
-import {preview} from "./preview.js"
+import { preview } from "./preview.js"
 export default preview;
+/**
+ * 检测是否是数字
+ * @param arg 待检测的字符
+ * @param defaultNum 0,如果不符合值时设置默认值
+ * @returns number类型数值
+ */
+export function isNumber(arg: string | number | undefined | null, defaultNum = 0):number {
+	const p = Number(arg);
+	return p || defaultNum;
+}
+/**
+ * 检测是否是字符串
+ * @param arg 待检测的字符
+ * @param defaultNum 默认"",如果不符合值是设置默认值
+ * @returns 字符串
+ */
+export function isString(arg: string | number | undefined | null, defaultStr = ""):string {
+	let p = "";
+	if (typeof arg === "string" && arg != null) {
+		p = String(arg);
+	} else p = defaultStr;
+	return p;
+}
+/**
+ * 把一个数字进行分页返回数字数组
+ * @param total 总数
+ * @param pageSize 分页大小
+ * @returns 数字数组
+ */
+export function paginate(total: number, pageSize: number): number[] {
+	const pages = Math.ceil(total / pageSize);
+	const pageArr: number[] = [];
+	for (let i = 0; i < pages; i++) {
+		pageArr.push(i + 1);
+	}
+	return pageArr;
+}
+
+
+/**
+   * 取对象数据值（可深层次取值）
+   * @example getValue(data,"a.b.c")
+   * @param data 对象数据
+   * @param keys 键值
+   * @returns 返回值
+   * @description 注意不会去改变原来的数据
+   */
+export function getValue(data: Data, keys: string): any {
+	const keyArr = keys.split(".");
+	let result = { ...data };
+
+	for (const key of keyArr) {
+		result = result[key];
+		if (result === undefined || result === null) {
+			return result;
+		}
+	}
+
+	return result;
+}
+/**
+ * 设置对象键值（可深层次设置值）
+ * @example setValue(data,"a.b.c","haha")
+ * @param data 对象数据
+ * @param keys 键值
+ * @returns 修改后的对象数据。
+ * @description 改变原来的数据
+ */
+/**
+ * 设置对象键值（可深层次设置值）
+ * @example setValue(data,"a.b.c","haha")
+ * @param data 对象数据
+ * @param keys 键值
+ * @returns 修改后的对象数据。
+ * @description 改变原来的数据
+ */
+export function setValue(data: Data, keys: string, value: any): void {
+	const keyArr = keys.split(".");
+	let obj = data;
+	for (let i = 0; i < keyArr.length - 1; i++) {
+		const key = keyArr[i];
+		if (!(key in obj)) {
+			obj[key] = {};
+		}
+		obj = obj[key];
+	}
+	obj[keyArr[keyArr.length - 1]] = value;
+}
+/**
+ * 计算并返回一个对象中最大的层级数
+ * @param data 待检测对象数据
+ * @returns 最大层级数
+ */
+export function getMaxDepth(data: Data): number {
+	let maxDepth = 0;
+
+	function traverse(obj: any, depth: number): void {
+		if (typeof obj !== "object" || obj === null) {
+			maxDepth = Math.max(maxDepth, depth);
+			return;
+		}
+		for (const key in obj) {
+			// deno-lint-ignore no-prototype-builtins
+			if (obj.hasOwnProperty(key)) {
+				traverse(obj[key], depth + 1);
+			}
+		}
+	}
+
+	traverse(data, 0);
+
+	return maxDepth;
+}
+
+/**
+ * 深度合并对象
+ * @param FirstOBJ 需要合并的对象
+ * @param SecondOBJ 被合并的对象
+ * @returns 返回合并后的对象 
+ */
+export function deepObjectMerge<T>(FirstOBJ: Data, SecondOBJ: Data): Data { // 深度合并对象
+	for (var key in SecondOBJ) {
+		FirstOBJ[key] = FirstOBJ[key] && FirstOBJ[key]?.toString() === "[object Object]" ?
+			deepObjectMerge(FirstOBJ[key], SecondOBJ[key]) : FirstOBJ[key] = SecondOBJ[key];
+	}
+	return FirstOBJ;
+}
+
 /**
 * 数据分组
 * @param {Array} oArr - 原数组列表
 * @param {Number} length - 单个数组长度
 * @return {Array}  arr - 分组后的新数组
 */
-export function splitData(oArr:Array<any> = [], length = 1) {
-	let arr:Array<any> = [];
-	let minArr:Array<any> = [];
-	oArr.forEach(c => {
-		if (minArr.length === length) {
-			minArr = [];
-		}
-		if (minArr.length === 0) {
-			arr.push(minArr);
-		}
-		minArr.push(c);
-	});
-
-	return arr;
+export function splitData<T>(arr: Array<T> = [], size = 1): Array<T[]> {
+	const result = [];
+	for (let i = 0; i < arr.length; i += size) {
+		result.push(arr.slice(i, i + size));
+	}
+	return result as T[][];
 }
+
+
+/**
+ * 深度克隆
+ * @param {T} data 待大克隆复制的数据
+ * @return {T} any
+ */
+export function deepClone<T>(data: T): T {
+	// 对常见的“非”值，直接返回原来值
+	if (data === null || typeof data !== "object") {
+		return data;
+	}
+	if (Array.isArray(data)) {
+		const clone: any[] = [];
+		for (const item of data) {
+			clone.push(deepClone(item));
+		}
+		return clone as any;
+	}
+	if (data instanceof Date) {
+		return new Date(data.getTime()) as unknown as T;
+	}
+	if (data instanceof RegExp) {
+		const flags = data.flags;
+		return new RegExp(data.source, flags) as unknown as T;
+	}
+	if (typeof data === "function") {
+		return data as unknown as T;
+	}
+	const clone = {} as T;
+	for (const key in data) {
+		if (Object.prototype.hasOwnProperty.call(data, key)) {
+			clone[key] = deepClone(data[key]);
+		}
+	}
+	return clone;
+}
+
 
 /**
 * 剩余时间格式化
 * @param {Number} t - 剩余多少秒
 * @return {Object}  format - 格式后的天时分秒对象
 */
-export function timeMuch(t:number) {
-	let format:any = {
+export function timeMuch(t: number) {
+	let format: any = {
 		d: '00',
 		h: '00',
 		m: '00',
@@ -59,66 +215,66 @@ export function timeMuch(t:number) {
 	return format;
 }
 //获取时间距离当前时间
-export function getDateToNewData(timestamp:number|string|Date = new Date().getTime()){
-	if(typeof timestamp == 'string'){
+export function getDateToNewData(timestamp: number | string | Date = new Date().getTime()) {
+	if (typeof timestamp == 'string') {
 		timestamp = new Date(timestamp).getTime();
 	}
-	
-	 // 补全为13位
-	 var arrTimestamp:Array<string> = (timestamp + '').split('');
-	 for (var start = 0; start < 13; start++) {
-		 if (!arrTimestamp[start]) {
-			 arrTimestamp[start] = '0';
-		 }
-	 }
-	 timestamp = Number(arrTimestamp.join(''))* 1;
- 
-	 var minute = 1000 * 60;
-	 var hour = minute * 60;
-	 var day = hour * 24;
-	 var halfamonth = day * 15;
-	 var month = day * 30;
-	 var now = new Date().getTime();
-	 var diffValue = now - timestamp;
- 
-	 // 如果本地时间反而小于变量时间
-	 if (diffValue < 0) {
-		 return '不久前';
-	 }
-	 // 计算差异时间的量级
-	 var monthC = diffValue / month;
-	 var weekC = diffValue / (7 * day);
-	 var dayC = diffValue / day;
-	 var hourC = diffValue / hour;
-	 var minC = diffValue / minute;
- 
-	 // 数值补0方法
-	 var zero = function (value:number) {
-		 if (value < 10) {
-			 return '0' + value;
-		 }
-		 return value;
-	 };
- 
-	 // 使用
-	 if (monthC > 12) {
-		 // 超过1年，直接显示年月日
-		 return (function () {
-			 var date = new Date(timestamp);
-			 return date.getFullYear() + '年' + zero(date.getMonth() + 1) + '月' + zero(date.getDate()) + '日';
-		 })();
-	 } else if (monthC >= 1) {
-		 return parseInt(monthC+'') + "月前";
-	 } else if (weekC >= 1) {
-		 return parseInt(weekC+'') + "周前";
-	 } else if (dayC >= 1) {
-		 return parseInt(dayC+'') + "天前";
-	 } else if (hourC >= 1) {
-		 return parseInt(hourC+'') + "小时前";
-	 } else if (minC >= 1) {
-		 return parseInt(minC+'') + "分钟前";
-	 }
-	 return '刚刚'; 
+
+	// 补全为13位
+	var arrTimestamp: Array<string> = (timestamp + '').split('');
+	for (var start = 0; start < 13; start++) {
+		if (!arrTimestamp[start]) {
+			arrTimestamp[start] = '0';
+		}
+	}
+	timestamp = Number(arrTimestamp.join('')) * 1;
+
+	var minute = 1000 * 60;
+	var hour = minute * 60;
+	var day = hour * 24;
+	var halfamonth = day * 15;
+	var month = day * 30;
+	var now = new Date().getTime();
+	var diffValue = now - timestamp;
+
+	// 如果本地时间反而小于变量时间
+	if (diffValue < 0) {
+		return '不久前';
+	}
+	// 计算差异时间的量级
+	var monthC = diffValue / month;
+	var weekC = diffValue / (7 * day);
+	var dayC = diffValue / day;
+	var hourC = diffValue / hour;
+	var minC = diffValue / minute;
+
+	// 数值补0方法
+	var zero = function(value: number) {
+		if (value < 10) {
+			return '0' + value;
+		}
+		return value;
+	};
+
+	// 使用
+	if (monthC > 12) {
+		// 超过1年，直接显示年月日
+		return (function() {
+			var date = new Date(timestamp);
+			return date.getFullYear() + '年' + zero(date.getMonth() + 1) + '月' + zero(date.getDate()) + '日';
+		})();
+	} else if (monthC >= 1) {
+		return parseInt(monthC + '') + "月前";
+	} else if (weekC >= 1) {
+		return parseInt(weekC + '') + "周前";
+	} else if (dayC >= 1) {
+		return parseInt(dayC + '') + "天前";
+	} else if (hourC >= 1) {
+		return parseInt(hourC + '') + "小时前";
+	} else if (minC >= 1) {
+		return parseInt(minC + '') + "分钟前";
+	}
+	return '刚刚';
 }
 
 /**
@@ -128,11 +284,11 @@ export function getDateToNewData(timestamp:number|string|Date = new Date().getTi
 */
 export function callPhone(phoneNumber = '') {
 	let num = phoneNumber.toString()
-	return new Promise((rs,rj)=>{
+	return new Promise((rs, rj) => {
 		uni.makePhoneCall({
 			phoneNumber: num,
-			success:()=> rs(true),
-			fail:(err)=> rj(err)
+			success: () => rs(true),
+			fail: (err) => rj(err)
 		});
 	})
 }
@@ -143,17 +299,19 @@ export function callPhone(phoneNumber = '') {
  * @param {Array<string>} scanType ['barCode', 'qrCode', 'datamatrix','datamatrix']
  * @returns Promise 成功返回相关数据结构
  */
- export function scanCode(onlyFromCamera = true, scanType = ['barCode', 'qrCode', 'datamatrix','datamatrix']):Promise<string|UniApp.ScanCodeSuccessRes>{
-	// #ifdef H5
-	return Promise.reject('不支持H5');
-	// #endif
-	return new Promise((rs,rj)=>{
+export function scanCode(onlyFromCamera = true, scanType = ['barCode', 'qrCode', 'datamatrix', 'datamatrix']): Promise<string | UniApp.ScanCodeSuccessRes> {
+	return new Promise((rs, rj) => {
+		// #ifdef H5
+		rj('不支持H5');
+		// #endif
+		// #ifndef H5
 		uni.scanCode({
 			onlyFromCamera: onlyFromCamera,
 			scanType: scanType,
 			success: (res) => rs(res),
-			fail:(error)=>rj(error)
+			fail: (error) => rj(error)
 		});
+		// #endif
 	})
 }
 
@@ -162,55 +320,53 @@ export function callPhone(phoneNumber = '') {
  * @param {String} data 
  * @returns Promise true/false
  */
- export function setClipboardData(data:string):Promise<string|boolean>{
-
-	// #ifndef H5
-	return new Promise((rs,rj)=>{
+export function setClipboardData(data: string): Promise<string | boolean> {
+	return new Promise((rs, rj) => {
+		// #ifndef H5
 		uni.setClipboardData({
 			data: data,
-			success:()=>rs(true),
-			fail:(error)=>rj(error)
+			success: () => rs(true),
+			fail: (error) => rj(error)
 		});
+		// #endif
+		// #ifdef H5
+		if (navigator.clipboard && window.isSecureContext) {
+			return navigator.clipboard.writeText(data)
+		}
+		else {
+			const textArea = document.createElement('textarea')
+			textArea.style.opacity = "0"
+			textArea.style.position = "fixed"
+			textArea.style.top = "0px"
+			textArea.value = data
+			document.body.appendChild(textArea)
+			textArea.focus()
+			textArea.select()
+			document.execCommand('copy') ? rs(true) : rj("错误")
+			textArea.remove()
+		}
+		// #endif
 	})
-	// #endif
-	// #ifdef H5
-	return new Promise((rs,rj)=>{
-		let btn = document.createElement('button');
-		btn.style.display = 'none';
-		btn.className='hi-test-hi';
-		document.body.appendChild(btn);
-		clipboardJS = clipboardJS.bind(window);
-		let cb = new clipboardJS('.hi-test-hi', {
-			text: () => data
-		})
-		
-		cb.on('success', function (res) {
-			rs(true);
-		})
-		cb.on('error', function (err) {
-			rj(err)
-		})
-		btn.click = btn.click.bind(window.document.body.querySelector('.hi-test-hi'))
-		btn.click()
-	})
-	// #endif
 }
 /**
  * 获取剪切板内容
  * @returns Promise 剪切板内容
  */
- export function getClipboardData():Promise<boolean|string>{
-	// #ifndef H5
+export function getClipboardData(): Promise<boolean | string> {
+
 	return new Promise((rs, rj) => {
+		// #ifndef H5
 		uni.getClipboardData({
 			success: (res) => rs(res.data),
 			fail: (error) => rj(error)
 		});
+		// #endif
+		// #ifdef H5
+		console.error('H5无法获取剪切板内容')
+		rj('H5无法获取剪切板内容')
+		// #endif
 	})
-	// #endif
-	// #ifdef H5
-	return Promise.reject('H5无法获取剪切板内容')
-	// #endif
+
 }
 
 /**
@@ -219,7 +375,7 @@ export function callPhone(phoneNumber = '') {
  * @param {String} data 值
  * @returns Boolean
  */
- export function setCookie(key:string, data:any) {
+export function setCookie(key: string, data: any) {
 	try {
 		uni.setStorageSync(key, data);
 		return true;
@@ -232,7 +388,7 @@ export function callPhone(phoneNumber = '') {
  * @param {String} key 键值
  * @returns Boolean
  */
- export function delCookie(key:string) {
+export function delCookie(key: string) {
 	try {
 		uni.removeStorageSync(key);
 		return true;
@@ -247,7 +403,7 @@ export function callPhone(phoneNumber = '') {
  * @param {String} key 键
  * @returns json/string
  */
- export function getCookie(key:string) {
+export function getCookie(key: string) {
 	try {
 		const value = uni.getStorageSync(key);
 		try {
@@ -269,7 +425,7 @@ export function callPhone(phoneNumber = '') {
  * @param {string} value 字段值
  * @returns 
  */
- export function httpUrlAddKey(uri:string, key:string, value:string) {
+export function httpUrlAddKey(uri: string, key: string, value: string) {
 	if (!value) {
 		return uri;
 	}
@@ -287,23 +443,25 @@ export function callPhone(phoneNumber = '') {
  * @param {string} key 字段
  * @returns string
  */
-export function getQueryString(url:string,key:string):string {
-  var query_string = url.substring(url.indexOf("?")); 
-  if (!query_string) return "";
-  var re = /[?&]?([^=]+)=([^&]*)/g;
-  var tokens:any;
-  while (tokens = re.exec(query_string)) {
-    if (decodeURIComponent(tokens[1]) === key) {
-      return decodeURIComponent(tokens[2]);
-	  break;
-    }
-  }
-  return "";
+export function getQueryString(url: string, key: string): string {
+	var query_string = url.substring(url.indexOf("?"));
+	if (!query_string) return "";
+	var re = /[?&]?([^=]+)=([^&]*)/g;
+	var tokens: any;
+	while (tokens = re.exec(query_string)) {
+		if (decodeURIComponent(tokens[1]) === key) {
+			return decodeURIComponent(tokens[2]);
+			break;
+		}
+	}
+	return "";
 }
-
-export function getUid (length=12){
-	
-	return Number(Number(Math.random().toString().substr(3,length) + Date.now()).toString(8));
+/**
+ * rdix 随机因子,
+ * length 取的长度.
+ */
+export function getUid(rdix = 1, length = 12, isAddStr = false) {
+	return Math.floor(Math.random() * rdix * Math.floor(Math.random() * Date.now())).toString(isAddStr ? 16 : 10).substring(0, length);
 }
 
 /*
@@ -313,24 +471,24 @@ export function getUid (length=12){
 	@param {Number} wait 延迟的时间
 	@param{Boolean} immediate 是否要立即执行
 */
-var timeout= getUid(1)
-export function debounce(func:Function, wait = 500, immediate = false) {
-  // 清除定时器
-  if (timeout !== null) clearTimeout(timeout);
-  // 立即执行，此类情况一般用不到
-  if (immediate) {
-    var callNow = !timeout;
-    timeout = setTimeout(() => {
-      timeout = null;
-    }, wait);
-    if (callNow) typeof func === "function" && func();
-  } else {
-    // 设置定时器，当最后一次操作后，timeout不会再被清除，所以在延时wait毫秒后执行func回调方法
-	timeout = getUid(1);
-    timeout = setTimeout(() => {
-      typeof func === "function" && func();
-    }, wait);
-  }
+var timeout: any = getUid(1)
+export function debounce(func: Function, wait = 500, immediate = false) {
+	// 清除定时器
+	if (timeout !== null) clearTimeout(timeout);
+	// 立即执行，此类情况一般用不到
+	if (immediate) {
+		var callNow = !timeout;
+		timeout = setTimeout(() => {
+			timeout = null;
+		}, wait);
+		if (callNow) typeof func === "function" && func();
+	} else {
+		// 设置定时器，当最后一次操作后，timeout不会再被清除，所以在延时wait毫秒后执行func回调方法
+		timeout = getUid(1);
+		timeout = setTimeout(() => {
+			typeof func === "function" && func();
+		}, wait);
+	}
 }
 
 /**
@@ -341,13 +499,14 @@ export function debounce(func:Function, wait = 500, immediate = false) {
  * @param {Boolean} immediate 是否立即执行
  * @return null
  */
-export function throttle(func:Function, wait = 500, immediate = true,timer=85688,flag=false) {
+var timesr:any = NaN
+export function throttle(func: Function, wait = 500, immediate = true,  flag = false) {
 	if (immediate) {
 		if (!flag) {
 			flag = true;
 			// 如果是立即执行，则在wait毫秒内开始时执行
 			typeof func === 'function' && func();
-			timer = setTimeout(() => {
+			timesr = setTimeout(() => {
 				flag = false;
 			}, wait);
 		}
@@ -355,62 +514,54 @@ export function throttle(func:Function, wait = 500, immediate = true,timer=85688
 		if (!flag) {
 			flag = true
 			// 如果是非立即执行，则在wait毫秒内的结束处执行
-			timer = setTimeout(() => {
+			timesr = setTimeout(() => {
 				flag = false
 				typeof func === 'function' && func();
 			}, wait);
 		}
-		
+
 	}
 };
 
 
-// 深度克隆
-export function deepClone (obj:any) {
-	// 对常见的“非”值，直接返回原来值
-	if([null, undefined, NaN, false].includes(obj)) return obj;
-    if(typeof obj !== "object" && typeof obj !== 'function') {
-		//原始类型直接返回
-        return obj;
-    }
-    var o:any = Array.isArray(obj) ? [] : {};
-    for(let i in obj) {
-        if(obj.hasOwnProperty(i)){
-            o[i] = typeof obj[i] === "object" ? deepClone(obj[i]) : obj[i];
-        }
-    }
-    return o;
-}
 
-export function quereyDom(t:ComponentInternalInstance,node:string){
-	// #ifdef APP-NVUE
-	const dom:any = uni.requireNativePlugin('dom')
-	return new Promise((res,rej)=>{
-		setTimeout(function(){
-			node = node.replace(/#\./g,'')
-			
-			dom.getComponentRect(t.refs[node], function(el:any) {
-				res(el.size);
+
+
+/**等同：queryDom */
+export function quereyDom(t: ComponentInternalInstance, node: string): Promise<UniApp.NodeInfo | UniApp.NodeInfo[]> {
+
+	return new Promise((res, rej) => {
+		// #ifdef APP-NVUE
+		const dom: any = uni.requireNativePlugin('dom')
+		setTimeout(function() {
+			node = node.replace(/^[#\.]/g, '')
+			dom.getComponentRect(t.refs[node], function(el: any) {
+				res(el?.size);
 			})
-		},60)
-	})
-	// #endif
-	// #ifndef APP-NVUE
-	return new Promise((res,rej)=>{
+		}, 60)
+		// #endif
+		// #ifndef APP-NVUE
 		const query = uni.createSelectorQuery().in(t);
 		query.select(node).boundingClientRect(el => {
 			res(el);
 		}).exec();
+		// #endif
 	})
-	// #endif
 }
+/**
+ * 查询文档节点信息
+ * @param t Vue上下文对象
+ * @param node 提供带#的id比如：'#id',在nvue中应该是元素上写明ref='id'
+ * @returns vue页面返回查询的节点信息，nvue返回weex的节点信息。
+ */
+export const queryDom = quereyDom
 
 /**
  * 是否是手机号码
  * @param phone 号码
  * @returns Boolean
  */
-export function isPhone(phone:string|number){
+export function isPhone(phone: string | number) {
 	let val = String(phone);
 	let reg = /^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/
 	return !!val.match(reg);
@@ -421,8 +572,8 @@ export function isPhone(phone:string|number){
  * @param s 字符串
  * @returns Boolean
  */
- export function isChina(s:string){
-	var patrn=/[\u4E00-\u9FA5]|[\uFE30-\uFFA0]/gi;
+export function isChina(s: string) {
+	var patrn = /[\u4E00-\u9FA5]|[\uFE30-\uFFA0]/gi;
 	return !!patrn.exec(s);
 }
 
@@ -431,18 +582,18 @@ export function isPhone(phone:string|number){
  * @description 判断是否是null,对象是否为空，数组是否为空。是否为 undefaind，是否为 “”空字符串。
  * @param s 任意
  */
-export function isEmpty(s:any){
-	if(typeof s === 'string'){
+export function isEmpty(s: any) {
+	if (typeof s === 'string') {
 		s = s.trim();
 	}
-	if(s=="") return true
-	if(s==null) return true;
-	if(typeof s === 'undefined') return true;
-	if(Array.isArray(s)){
-		if(s.length==0) return true;
+	if (s == "") return true
+	if (s == null) return true;
+	if (typeof s === 'undefined') return true;
+	if (Array.isArray(s)) {
+		if (s.length == 0) return true;
 	}
-	if(typeof s ==='object'){
-		if(Object.keys(s).length==0) return true;
+	if (typeof s === 'object') {
+		if (Object.keys(s).length == 0) return true;
 	}
 	return false;
 }
@@ -451,7 +602,7 @@ export function isEmpty(s:any){
  * @param s 字符串
  * @returns Boolean
  */
-export function isEmail(s:string){
+export function isEmail(s: string) {
 	let reg = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
 	return !!s.match(reg);
 }
@@ -461,23 +612,23 @@ export function isEmail(s:string){
  * @returns Boolean
  * @author https://cloud.tencent.com/developer/article/1114323
  */
-export function isIdCard (val:string|number) {
+export function isIdCard(val: string | number) {
 	val = String(val)
-    var p = /^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/;
-    var factor = [ 7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2 ];
-    var parity = [ 1, 0, 'X', 9, 8, 7, 6, 5, 4, 3, 2 ];
-    var code = val.substring(17);
-    if(p.test(val)) {
-        var sum:number = 0;
-        for(var i=0;i<17;i++) {
-			let id:number|string|any = val[i]
-            sum += id*factor[i];
-        }
-        if(parity[sum % 11] == code.toUpperCase()) {
-            return true;
-        }
-    }
-    return false;
+	var p = /^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/;
+	var factor = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2];
+	var parity = [1, 0, 'X', 9, 8, 7, 6, 5, 4, 3, 2];
+	var code = val.substring(17);
+	if (p.test(val)) {
+		var sum: number = 0;
+		for (var i = 0; i < 17; i++) {
+			let id: number | string | any = val[i]
+			sum += id * factor[i];
+		}
+		if (parity[sum % 11] == code.toUpperCase()) {
+			return true;
+		}
+	}
+	return false;
 }
 /**
  * 是否车牌
@@ -485,7 +636,7 @@ export function isIdCard (val:string|number) {
  * @param s 字符串
  * @returns Boolean
  */
-export function isIdCar(s:string){
+export function isIdCar(s: string) {
 	let reg = /^[京|沪|津|渝|鲁|冀|晋|蒙|辽|吉|黑|苏|浙|皖|闽|赣|豫|湘|鄂|粤|桂|琼|川|贵|云|藏|陕|甘|青|宁|新|港|澳|台|新|使]{1}[A-Z]{1}[A-Z_0-9]{5,6}$/
 	return !!s.match(reg);
 }
@@ -497,7 +648,7 @@ export function isIdCar(s:string){
  * @param maxLen 最大长度，默认20
  * @returns Boolean
  */
-export function isPasswordOfNumber(s:number|string,len=6,maxLen=20){
+export function isPasswordOfNumber(s: number | string, len = 6, maxLen = 20) {
 	s = String(s);
 	let reg = new RegExp(`^[0-9]{${len},${maxLen}}$`)
 	return !!s.match(reg)
@@ -511,17 +662,17 @@ export function isPasswordOfNumber(s:number|string,len=6,maxLen=20){
  * @param model 0数字和英文，1数字，英文必须包含，不允许有特殊字符，2数字和字母必须包含，可以有特殊字符。
  * @returns Boolean
  */
-export function isPasswordOfOther(s:string|number,len=6,maxLen=20,model=0){
+export function isPasswordOfOther(s: string | number, len = 6, maxLen = 20, model = 0) {
 	s = String(s);
 	//密码至少包含 数字和英文，长度6-20
 	let reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/
 	//密码包含 数字,英文,字符中的两种以上，长度6-20
-	if(model===1){
+	if (model === 1) {
 		reg = /^(?![0-9]+$)(?![a-z]+$)(?![A-Z]+$)(?!([^(0-9a-zA-Z)])+$).{6,20}$/
 	}
 
 	//至少包含数字跟字母，可以有字符
-	if(model===2){
+	if (model === 2) {
 		reg = /(?=.*([a-zA-Z].*))(?=.*[0-9].*)[a-zA-Z0-9-*/+.~!@#$%^&*()]{6,20}$/
 	}
 
@@ -533,14 +684,14 @@ export function isPasswordOfOther(s:string|number,len=6,maxLen=20,model=0){
  * @param s 字符串，数字，日期对象
  * @returns Boolean
  */
-export function isDate(s:string|number|Date){
-	if(s==null||typeof s === 'undefined' || !s) return false;
-	if(typeof s ==='string'){
+export function isDate(s: string | number | Date) {
+	if (s == null || typeof s === 'undefined' || !s) return false;
+	if (typeof s === 'string') {
 		//兼容ios,mac
-		s = s.replace('-','/');
+		s = s.replace('-', '/');
 	}
 	let d = new Date(s);
-	if(d.toString() == 'Invalid Date') return false;
+	if (d.toString() == 'Invalid Date') return false;
 	return true;
 }
 /**
@@ -549,80 +700,159 @@ export function isDate(s:string|number|Date){
  * @param mask 不允许穿透
  * @param icon 图标
  */
-export function toast(word:string,mask:boolean=true,icon:any='none'){
+export function toast(word: string, mask: boolean = true, icon: any = 'none') {
+	// #ifndef MP-ALIPAY
 	uni.showToast({
-		mask:mask,
-		title:word,
-		icon:icon
+		mask: mask,
+		title: word,
+		icon: icon
 	})
+	// #endif
+	// #ifdef MP-ALIPAY
+	uni.showToast({
+		title: word,
+		icon: icon
+	})
+	// #endif
 }
 /**
  * 获取屏幕窗口安全高度和宽度
  * 注意是针对种屏幕的统一计算，统一高度，不再让uni获取有效高度而烦恼。
  * 请一定要在onMounted或者onLoad中调用，否则不准确在h5端。
- * @return {height,width}
+ * @return {height,width,top,isCustomHeader,statusBarHeight,sysinfo}
  */
-export function getWindow(){
-	let appsys = uni.getWindowInfo();
+export function getWindow(): { width: number, height: number, top: number, bottom: number, statusBarHeight: number, isCustomHeader: Boolean, sysinfo: UniApp.GetSystemInfoResult } {
+	// let getsysinfoSync = getCookie("tmui_sysinfo")
+	// if(getsysinfoSync){
+	// 	return getsysinfoSync
+	// }
 	const sysinfo = uni.getSystemInfoSync();
-	let top =0;
-	let height = appsys.windowHeight;
+	let top = 0;
+	let height = sysinfo.windowHeight;
 	let nowPage = getCurrentPages().pop()
 	let isCustomHeader = false;
-	for(let i=0;i<uni.$tm.pages.length;i++){
-		if(nowPage?.route==uni.$tm.pages[i].path&&uni.$tm.pages[i].custom=='custom'){
+	let pages = uni.$tm?.pages ?? []
+	let bottom = sysinfo.safeAreaInsets?.bottom ?? 0;
+	for (let i = 0; i < uni.$tm.pages.length; i++) {
+		if (nowPage?.route == uni.$tm.pages[i].path && uni.$tm.pages[i].custom == 'custom') {
 			isCustomHeader = true;
 			break;
 		}
 	}
 	// #ifdef H5
+	// 兼容说明：h5端第一次获取的高度和第二次获取的高度是有差异 的。
 	if (isCustomHeader) {
-		height = sysinfo.windowHeight+44
-	}else{
+		height = sysinfo.windowHeight + sysinfo.windowTop
+
+	} else {
 		top = 44
-	}
-	// #endif
-	
-	// #ifdef APP-NVUE 
-	if(!isCustomHeader){
-		if(sysinfo.osName=="android"){
-			height = appsys.safeArea.height - 44 - appsys.safeAreaInsets.bottom
-		}else{
-			height = appsys.safeArea.height - 44
+		if (sysinfo.windowTop > 0) {
+			height = sysinfo.windowHeight;
+		} else {
+			height = sysinfo.windowHeight + sysinfo.windowTop
 		}
-	}else{
-		height= appsys.safeArea.height + appsys.statusBarHeight + appsys.safeAreaInsets.bottom
 	}
+
 	// #endif
-	// #ifdef APP-VUE 
-	if(!isCustomHeader){
-		height = appsys.safeArea.height - 44
-	}else{
-		height = appsys.safeArea.height + appsys.statusBarHeight + appsys.safeAreaInsets.bottom
-	}
-	// #endif
-	return {height:height,width:appsys.windowWidth,top:top};
+
+	let results = { bottom: bottom, height: height, width: sysinfo.windowWidth, top: top, isCustomHeader: isCustomHeader, statusBarHeight: sysinfo.statusBarHeight || 0, sysinfo: sysinfo };
+
+	return results;
 }
-type openUrlType = "navigate"|"redirect"|"reLaunch"|"switchTab"|"navigateBack"
+type openUrlType = "navigate" | "redirect" | "reLaunch" | "switchTab" | "navigateBack"
 /**
  * 
  * @param url string 打开的页面路径
  * @param type openUrlType "navigate"|"redirect"|"reLaunch"|"switchTab"|"navigateBack"
  */
-export function routerTo(url:string,type:openUrlType='navigate'){
-	type openUrlTypeFun = "navigateTo"|"redirectTo"|"reLaunch"|"switchTab"|"navigateBack"
+export function routerTo(url: string, type: openUrlType = 'navigate') {
+	type openUrlTypeFun = "navigateTo" | "redirectTo" | "reLaunch" | "switchTab" | "navigateBack"
 	let funType = {
-		navigate:"navigateTo",
-		redirect:"redirectTo",
-		switchTab:"switchTab",
-		reLaunch:"reLaunch",
-		navigateBack:"navigateBack",
+		navigate: "navigateTo",
+		redirect: "redirectTo",
+		switchTab: "switchTab",
+		reLaunch: "reLaunch",
+		navigateBack: "navigateBack",
 	}
-	let fun= <openUrlTypeFun>funType[type];
-	uni[fun]({
-		url:url,
-		fail(result) {
-			console.error(result)
-		},
-	})
+	let fun = funType[type];
+	if (fun == 'navigateBack') {
+		uni.navigateBack({
+			fail(error) {
+				console.error(error)
+			}
+		})
+	} else if (fun == 'reLaunch') {
+		uni.reLaunch({
+			url: url,
+			fail(error) {
+				console.error(error)
+			}
+		})
+	} else if (fun == 'switchTab') {
+		uni.switchTab({
+			url: url,
+			fail(error) {
+				console.error(error)
+			}
+		})
+	} else if (fun == 'redirectTo') {
+		uni.redirectTo({
+			url: url,
+			fail(error) {
+				console.error(error)
+			}
+		})
+	} else if (fun == 'navigateTo') {
+		uni.navigateTo({
+			url: url,
+			fail(error) {
+				console.error(error)
+			}
+		})
+	}
+
+}
+
+/**
+ * 将rpx转换为px
+ * @param v 待转换的数字
+ * @param screenWidth 屏幕的宽度，如果不提供默认自动获取
+ * @return number
+ */
+export function torpx(v: number, screenWidth: number = 0) {
+	if (typeof screenWidth === 'undefined' || !screenWidth) {
+		screenWidth = uni.getSystemInfoSync().screenWidth;
+	}
+	let pixelRatio = 750 / screenWidth;
+	return Math.ceil(v * pixelRatio)
+}
+/**
+ * 将rpx转换为px
+ * @param v 待转换的数字
+ * @return number
+ */
+export function topx(v: number) {
+	return Math.ceil(uni.upx2px(Number(v)))
+}
+var lastTime = 0;
+/**
+ * 在下一次前执行回调函数
+ * @param callback 回调函数
+ * @returns 一个id值，取消时cancelAnimationFrame(id)来取消
+ */
+export function requestAnimationFrame(callback: Function): number {
+	const currentTime = new Date().getTime();
+	const timeToCall = Math.max(0, 16 - (currentTime - lastTime));
+	const id = <any>setTimeout(() => {
+		callback(currentTime + timeToCall);
+	}, timeToCall);
+	lastTime = currentTime + timeToCall;
+	return id;
+}
+/**
+ * 取消回调执行
+ * @param id requestAnimationFrame产生的id
+ */
+export function cancelAnimationFrame(id: number): void {
+	clearTimeout(id)
 }

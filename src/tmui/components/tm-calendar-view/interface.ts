@@ -18,11 +18,15 @@ export interface monthYearItem {
     dateStr:string,//日期
     month:number,//月份
     isVaild:boolean,//是否在允许选中范围内。
+    dateStr2?:string,
+    year?:string|number
+
 }
 
 export interface weekItem {
     week:number,//周次
     dateStr:string,//日期
+    dateStr2?:string,
     date:number|string,
     day:number,//星期几。
     isNowIn:boolean,//是否是本月。

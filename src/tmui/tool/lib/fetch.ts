@@ -2,8 +2,9 @@ import { fetchConfig,fetchConfigMethod } from './interface';
 let config:fetchConfig={
     url:"",
     data:{},
+	statusCode:200,
     header:{
-        "content-type":"application/json"
+        // "content-type":"application/json"
     },
     method:"POST",
     timeout:60000,
@@ -13,6 +14,7 @@ let config:fetchConfig={
     withCredentials:false,
     firstIpv4:false
 }
+
 function request(cog:fetchConfig = config,complete?:Function,beforeRequest?:Function,afterRequest?:Function):Promise<UniApp.GeneralCallbackResult|UniApp.RequestSuccessCallbackResult>{
     let newConfig = {...config,...cog}
     return new Promise(async (resolve,reject)=>{
@@ -23,7 +25,6 @@ function request(cog:fetchConfig = config,complete?:Function,beforeRequest?:Func
             }
             newConfig = {...newConfig,...opts};
         }
-		console.log(newConfig)
         uni.request({
             url:newConfig.url||"",
             data:newConfig.data,
@@ -36,16 +37,25 @@ function request(cog:fetchConfig = config,complete?:Function,beforeRequest?:Func
             withCredentials:newConfig.withCredentials,
             firstIpv4:newConfig.firstIpv4,
             async success(result) {
-				if(result.statusCode !==200){
+				
+				if(result.statusCode !==newConfig?.statusCode){
 					reject(result)
 					return;
 				}
                 if(typeof afterRequest === 'function'){
                     let opts = await afterRequest(result);
-                    if(typeof opts !=='object'){
-                        opts = result;
-                    }
-                    result = {...result,...opts};
+                    
+					try{
+						if(typeof opts !=='object'){
+						    opts = result;
+						}
+						if(typeof opts ==='object' && Object.keys(opts)?.length==0){
+						    opts = result;
+						}
+					}catch(e){
+						console.error('tmui:',e)
+					}
+                    result = {...opts};
                 }
                 resolve(result)
             },
@@ -96,7 +106,8 @@ export class fetchNet {
         let newConfig = {...config,...cog}
         if(typeof beforeFun == 'function'){
             let testFun = await beforeFun();
-            if(!testFun) return;
+            let cb:UniApp.GeneralCallbackResult = {errMsg:"中止请求"}
+            if(!testFun) return cb;
         }
         return request(newConfig,complete,(beforeFun||beforeRequest),(afterFun||afterRequest));
     }

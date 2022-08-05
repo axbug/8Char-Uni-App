@@ -1,9 +1,9 @@
 <template>
     <view class="flex flex-row flex-row-center-start">
-        <childNode :followTheme="props.followTheme"  v-if="!props.data['children']" :fieldNames="props.fieldNames" :data="props.data"></childNode>
-        <parentNode :followTheme="props.followTheme"  v-if="props.data['children']"  :fieldNames="props.fieldNames" :data="props.data"></parentNode>
+        <childNode  ref="parentNodeRefNode" :followTheme="props.followTheme"  v-if="!props.data['children']" :fieldNames="props.fieldNames" :data="props.data"></childNode>
+        <parentNode ref="parentNodeRef" :followTheme="props.followTheme"  v-if="props.data['children']"  :fieldNames="props.fieldNames" :data="props.data"></parentNode>
         <TmIcon _class="pr-16" :color="nodeData['color']" :font-size="28" v-if="nodeData['icon']" :name="nodeData['icon']"></TmIcon>
-        <TmText :font-size="28" :label="nodeData.text"></TmText>
+        <TmText @click="textClick(nodeData)" :font-size="28" :label="nodeData.text"></TmText>
     </view>
 </template>
 <script lang="ts" setup>
@@ -15,8 +15,11 @@ import parentNode from "./parent-node.vue"
 import {ref,getCurrentInstance, inject, computed, toRaw, watch, watchEffect,Ref} from "vue"
 import { baseNodeData } from "./interface";
 import { treeFlat } from './util';
+const parentNodeRef = ref<InstanceType<typeof parentNode> | null>(null);
+const parentNodeRefNode = ref<InstanceType<typeof childNode> | null>(null);
+    
 const {proxy} = getCurrentInstance();
-
+const emits = defineEmits(['textClick'])
 const props = defineProps({
 	followTheme: {
 		type: [Boolean,String],
@@ -53,6 +56,8 @@ while (parent) {
         parent = parent?.$parent??undefined
     }
 }
+
+
 const color = parent?.$props.color??'primary';
 const nodeData= computed(()=><baseNodeData>{
     icon:props.data['icon']??'',//节点图标。
@@ -63,7 +68,14 @@ const nodeData= computed(()=><baseNodeData>{
 })
 
 
-
+function textClick(node:baseNodeData){
+    //如果存在子级。
+    if(!props.data['children']){
+        parentNodeRefNode.value?.setStatus()
+    }
+    emits("textClick",node)
+    
+}
 
 
 </script>

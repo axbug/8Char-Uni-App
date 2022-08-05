@@ -1,0 +1,13 @@
+<template>
+	<view class="mb-20">
+		<detail-view></detail-view>
+		<wu-xing-view></wu-xing-view>
+		<cheng-gu-view></cheng-gu-view>
+	</view>
+</template>
+
+<script lang="ts" setup>
+import DetailView from '../index-main-detail/index-main-detail.nvue';
+import ChengGuView from '../index-main-chenggu/index-main-chenggu.nvue';
+import WuXingView from '../index-main-wuxing/index-main-wuxing.nvue';
+</script>
