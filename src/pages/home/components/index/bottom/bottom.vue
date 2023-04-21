@@ -28,6 +28,7 @@
 import {friendList} from "./config";
 import {getUrl} from "@/utils/file";
 import {clearLocalStorage} from "@/utils/cache";
+import {init} from "@/utils/launch";
 
 const ColClick = (item) => {
 
@@ -38,6 +39,7 @@ const ColClick = (item) => {
   }else if(item.type === "clearCache"){
     clearLocalStorage()
     uni.$u.toast("缓存清理完毕！");
+    init()
   }
 };
 </script>
