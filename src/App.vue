@@ -1,33 +1,18 @@
-<script setup lang="ts">
-import { onPageNotFound } from '@dcloudio/uni-app';
+<script setup>
+import {onLaunch, onPageNotFound} from '@dcloudio/uni-app';
+import {toHome} from "@/utils/router";
+import {init} from "@/utils/launch";
+
+onLaunch(()=>{
+  init()
+})
 
 onPageNotFound(() => {
-	uni.redirectTo({
-		url: '/pages/home/index'
-	});
+  toHome()
 });
 </script>
 
-<style>
-/* #ifdef APP-NVUE */
-@import './tmui/scss/nvue.css';
-/* #endif */
-/* #ifndef APP-NVUE */
-@import './tmui/scss/noNvue.css';
-/* #endif */
-
-/* #ifdef H5 */
-body::-webkit-scrollbar,
-div::-webkit-scrollbar,
-*::-webkit-scrollbar {
-	display: none;
-}
-
-body {
-	padding-bottom: 0 !important;
-}
-text {
-	font-family: 'sans-serif';
-}
-/* #endif */
+<style lang="scss">
+@import "vk-uview-ui/index.scss";
+@import "./style/index.scss";
 </style>

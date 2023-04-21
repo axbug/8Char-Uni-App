@@ -1,0 +1,99 @@
+@import "theme.scss";
+
+
+/* #ifdef MP-WEIXIN || APP-PLUS */
+::-webkit-scrollbar {
+  display: none;
+  width: 0 !important;
+  height: 0 !important;
+  -webkit-appearance: none;
+  background: transparent;
+  color: transparent;
+}
+page{
+  background: #f5f5f5 !important;
+}
+/* #endif */
+
+/* #ifdef H5 */
+uni-scroll-view .uni-scroll-view::-webkit-scrollbar {
+  /* 隐藏滚动条，但依旧具备可以滚动的功能 */
+  display: none;
+  width: 0 !important;
+  height: 0 !important;
+  -webkit-appearance: none;
+  background: transparent;
+  color: transparent;
+}
+uni-page{
+  background: #f5f5f5 !important;
+}
+/* #endif */
+
+
+.yx-text-weight-s {
+  font-weight: 100;
+}
+
+.yx-text-weight-n {
+  font-weight: 400;
+}
+
+.yx-text-weight-b {
+  font-weight: 800;
+}
+
+@for $i from 0 through 80 {
+  @if $i % 2 == 0 or $i % 5 == 0 {
+    .u-m-x-#{$i} {
+      margin-left: $i + rpx!important;
+      margin-right: $i + rpx!important;
+    }
+    .u-m-y-#{$i} {
+      margin-top: $i + rpx!important;
+      margin-bottom: $i + rpx!important;
+    }
+    .u-p-x-#{$i} {
+      padding-left: $i + rpx!important;
+      padding-right: $i + rpx!important;
+    }
+    .u-p-y-#{$i} {
+      padding-top: $i + rpx!important;
+      padding-bottom: $i + rpx!important;
+    }
+  }
+}
+
+@for $i from 40 through 60 {
+  .u-font-#{$i} {
+    font-size: $i + rpx;
+  }
+}
+
+.u-type-steady-light {
+  color: $u-type-steady-light;
+}
+
+.u-type-steady-light-bg {
+  background-color: $u-type-steady-light;
+}
+
+.u-type-steady-dark {
+  color: $u-type-steady-dark;
+}
+
+.u-type-steady-dark-bg {
+  background-color: $u-type-steady-dark;
+}
+
+.u-type-steady-disabled {
+  color: $u-type-steady-disabled;
+}
+
+.u-type-steady {
+  color: $u-type-steady;
+}
+
+.u-type-steady-bg {
+  background-color: $u-type-steady;
+}

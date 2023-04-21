@@ -2,15 +2,15 @@
 	"easycom": {
 		"autoscan": true,
 		"custom": {
-			"^tm-(.*)": "@/tmui/components/tm-$1/tm-$1.vue",
-			"^yx-(.*)": "@/yxbug-cn/yx-$1/yx-$1.vue",
-			"^yxn-(.*)": "@/yxbug-cn/yxn-$1/yxn-$1.nvue"
+			"^u-(.*)": "vk-uview-ui/components/u-$1/u-$1.vue",
+			"^yx-(.*)": "@/yxbug-cn/yx-$1/yx-$1.vue"
 		}
 	},
-	"pages": [{
-			"path": "pages/home/index",
+	"pages": [
+		{
+			"path": "pages/home/home",
 			"style": {
-				"navigationBarTitleText": "八字排盘-阿轩的Bug",
+				"navigationBarTitleText": "四柱易学-阿轩的Bug",
 				"navigationStyle": "custom",
 				"titlePenetrate": "YES",
 				"transparentTitle": "always"
@@ -19,7 +19,7 @@
 		{
 			"path": "pages/detail/index",
 			"style": {
-				"navigationBarTitleText": "八字排盘-阿轩的Bug",
+				"navigationBarTitleText": "四柱易学-阿轩的Bug",
 				"navigationStyle": "custom",
 				"titlePenetrate": "YES",
 				"transparentTitle": "always"
@@ -28,7 +28,7 @@
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "八字排盘-阿轩的Bug",
+		"navigationBarTitleText": "四柱易学-阿轩的Bug",
 		"navigationBarBackgroundColor": "#FFFFFF",
 		"backgroundColor": "#FFFFFF"
 	},
