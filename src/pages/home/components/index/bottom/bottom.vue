@@ -1,6 +1,5 @@
 <template>
   <view>
-    <!-- #ifdef H5 -->
     <yx-sheet :round="3" :shadow="2">
       <template v-for="bitem in friendList">
         <text class="yx-text-weight-b u-p-t-10 u-m-b-20 u-font-38">关于项目</text>
@@ -19,7 +18,6 @@
         </u-row>
       </template>
     </yx-sheet>
-    <!-- #endif -->
     <yx-copyright></yx-copyright>
   </view>
 </template>
@@ -31,10 +29,17 @@ import {clearLocalStorage} from "@/utils/cache";
 import {init} from "@/utils/launch";
 
 const ColClick = (item) => {
-
   if (item.type === "route") {
     // #ifdef H5
-    location.href = item.url;
+    window.open(item.url);
+    // #endif
+    // #ifndef H5
+    uni.setClipboardData({
+      data: item.url,
+      success: function () {
+        uni.$u.toast("链接已复制到剪贴板，请粘贴到浏览器进行访问！",4000);
+      }
+    });
     // #endif
   }else if(item.type === "clearCache"){
     clearLocalStorage()

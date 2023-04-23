@@ -12,4 +12,11 @@ export const useBookStore = defineStore('book', {
 			books: []
 		};
 	},
+	actions: {
+		set(data) {
+			for (let key in data) {
+				this[key] = data[key];
+			}
+		}
+	},
 });

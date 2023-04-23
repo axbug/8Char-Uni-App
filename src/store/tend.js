@@ -1,6 +1,6 @@
-import { defineStore } from 'pinia';
-import { Solar, Lunar } from 'lunar-javascript';
-import {getRelationByPillar} from "@/utils/transform";
+import {defineStore} from 'pinia';
+import {Lunar, LunarUtil, Solar} from 'lunar-javascript';
+import {deleteFirstElement, getRelationByPillar, timeFormat} from "@/utils/transform";
 import {TEND_STORE_FIELD} from "@/config/map";
 
 export const useTendStore = defineStore('tend', {
@@ -67,7 +67,7 @@ export const useTendStore = defineStore('tend', {
             const {accurate,lunar} = state.currentLunar
             if(["day","time"].includes(accurate)){
                 const solar = lunar.getSolar();
-                const date = uni.$u.timeFormat(solar.toYmdHms(),"yyyy年mm月dd日")
+                const date = timeFormat(solar.toYmdHms(),"yyyy年mm月dd日")
                 let label = `已选日期：${date} 星期${solar.getWeekInChinese()}`
                 if(accurate === "time") label += ` ${lunar.getTimeZhi()}时 `;
                 label += `（阴历${lunar.getYear()}年${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}日）`
@@ -109,8 +109,7 @@ export const useTendStore = defineStore('tend', {
             const original = this.original;
             const dayunList = [];
 
-            for (let i = 0; i < original.length; i++) {
-                const item = original[i];
+            for (let item of original) {
                 const pillar = item.getGanZhi() || '童限';
                 dayunList.push({
                     startYear: item.getStartYear(),
@@ -140,8 +139,7 @@ export const useTendStore = defineStore('tend', {
             const year = dayun.getLiuNian();
             const yearList = [];
 
-            for (let i = 0; i < year.length; i++) {
-                const item = year[i];
+            for (let item of year) {
                 const pillar = item.getGanZhi();
                 yearList.push({
                     year: item.getYear(),
@@ -254,7 +252,7 @@ export const useTendStore = defineStore('tend', {
             const { date: _date } = dayList[dayIndex];
 
             const date = _date + ' 00:00:00';
-            const startTime = new Date(date.replace(/-/g, '/').replace(/T/g, ' ')).getTime() - 60 * 60 * 1000;
+            const startTime = new Date(date).getTime() - 60 * 60 * 1000;
 
             const timeList = [];
             for (let i = 0; i < 12; i++) {
@@ -272,6 +270,50 @@ export const useTendStore = defineStore('tend', {
             }
 
             this.timeList = timeList;
+        },
+        SkipCurrentTime(){
+            const { original } = this;
+            const currenYear = new Date().getFullYear()
+            const currenTimestmap = new Date().getTime()
+            for (let i = 0; i < this.original.length; i++) {
+                const minYear = original[i].getStartYear()
+                const maxYear = original[i].getEndYear()
+                if (currenYear >= minYear && currenYear <= maxYear) {
+                    const yearList = original[i].getLiuNian()
+                    this.currentIndex = i
+                    this.resolveDaYun()
+                    for (let j = 0; j < yearList.length; j++) {
+                        if (yearList[j].getYear() === currenYear) {
+                            this.yearIndex = j
+                            this.resolveLiuYear()
+                            const monthList = this.monthList
+                            for (let k = 0; k < monthList.length; k++) {
+                                const year = monthList[k].year
+                                const _year = k < 10 ? year : year + 1;
+                                const _date = (k < 11 ? year : year + 1) + '/' + monthList[i].date;
+                                const nextDate = _year + '/' + monthList[i].nextJieqiDate;
+                                const _timestmap = new Date(_date).getTime()
+                                const nextTimestmap = new Date(nextDate).getTime()
+                                if (_timestmap <= currenTimestmap && nextTimestmap > currenTimestmap) {
+                                    this.monthIndex = k
+                                    this.resolveLiuDay()
+                                    const dayList = this.dayList
+                                    const currenDate = Solar.fromDate(new Date()).toYmd().replace(/-/g, '/')
+                                    for (let l = 0; l < dayList.length; l++) {
+                                        if (currenDate === dayList[i].date) {
+                                            this.dayIndex = l
+                                            this.resolveLiuTime()
+                                            const solar = Solar.fromDate(new Date())
+                                            const timeBottom = solar.getLunar().getTimeZhi()
+                                            this.timeIndex = deleteFirstElement(LunarUtil.ZHI).indexOf(timeBottom)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 });

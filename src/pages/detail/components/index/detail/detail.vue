@@ -1,5 +1,5 @@
 <template>
-  <view class="u-m-b-50">
+  <view class="u-m-b-30">
     <detail-view></detail-view>
     <elements-view></elements-view>
     <weigh-bone-view></weigh-bone-view>

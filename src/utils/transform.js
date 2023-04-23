@@ -3,7 +3,7 @@ import {useDetailStore} from "@/store/detail";
 import {SHI_SHEN_SIMPLIFIE, SHI_SHEN_ZHI} from "@/config/offset";
 import {ELEMENT} from "@/config/map";
 
-const detailStore = useDetailStore()
+const store = useDetailStore()
 
 export const getElAttr = (label ,type = "type") =>{
     let el = "水";
@@ -39,16 +39,18 @@ export const getElAttr = (label ,type = "type") =>{
     return describeForNameMap[type] ? describeForNameMap[type](el) : el;
 }
 
-export const timeFormat = (time,format = "yyyy-mm-dd hh:MM") => {
-    return uni.$u.timeFormat(time, format)
+export const timeFormat = (time,format = "yyyy-mm-dd hh:MM",compat = false) => {
+    const datetime = uni.$u.timeFormat(time, format)
+    if(compat) return datetime.replace(/-/g, '/')
+    return datetime
 }
 
 export const getRelationByPillar = label => {
     let top;
     let bottom;
     if (label === '童限') {
-        top = detailStore.top.year;
-        bottom = detailStore.top.year;
+        top = store.top.year;
+        bottom = store.top.year;
     } else {
         top = label[0];
         bottom = label[1];
@@ -58,7 +60,7 @@ export const getRelationByPillar = label => {
 }
 
 export const getRelation = label => {
-    const top = detailStore.dayGan;
+    const top = store.dayGan;
     if(LunarUtil.GAN.includes(label)){
         return LunarUtil.SHI_SHEN_GAN[top+label];
     }else if(LunarUtil.ZHI.includes(label)){

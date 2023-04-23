@@ -39,7 +39,7 @@ const isHide = ref(false);
 const detailStore = useDetailStore();
 
 const detail = computed(()=>{
-  const type = detailStore.gender?"乾造":"坤造"
+  const type = detailStore.gender===1?"乾造":"坤造"
   return {
     pic:GetChineseZodiac(detailStore.zodiac),
     lunar:`阴历：${detailStore.datetime.lunar}`,

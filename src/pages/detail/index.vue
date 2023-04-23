@@ -1,6 +1,6 @@
 <template>
-  <view style="height:100vh;">
-    <view id="header">
+  <view style="height: 100vh;">
+    <view id="header" style="position: fixed;width: 100%;">
       <yx-nav-header></yx-nav-header>
       <header-view></header-view>
       <u-subsection
@@ -12,7 +12,11 @@
           style="border-radius: unset;"
       ></u-subsection>
     </view>
-    <scroll-view :style="{ height: scrollHeight }" scroll-y="true">
+    <scroll-view scroll-y class="u-abso" :style="{
+      top:headerHeight + 'px',
+      width:'100%',
+      height:contentHeight,
+    }">
       <detail v-if="tabsOption.current === 0"></detail>
       <basic v-else-if="tabsOption.current === 1"></basic>
       <major v-else-if="tabsOption.current === 2"></major>
@@ -22,7 +26,7 @@
 </template>
 
 <script setup>
-import {ref, reactive, onMounted, nextTick} from 'vue';
+import {ref, reactive, onMounted, nextTick, computed} from 'vue';
 import HeaderView from './components/index/common/header/header.vue'
 import Basic from './components/index/basic/basic.vue'
 import Live from './components/index/live/live.vue'
@@ -42,7 +46,10 @@ const tabsOption = reactive({
   current: 0
 });
 
-const scrollHeight = ref('0px');
+const headerHeight = ref(0);
+const contentHeight = computed(()=>{
+  return `calc(100vh - ${Math.ceil(headerHeight.value)}px)`
+})
 
 onMounted(() => {
   if (!detailStore.timestamp) toHome()
@@ -52,16 +59,7 @@ onMounted(() => {
 
 const ComputedScrollHeight = () => {
   uni.$u.getRect('#header').then(data => {
-    const sysinfo = uni.$u.sys();
-    // #ifdef MP-WEIXIN
-    const {screenHeight,statusBarHeight} = sysinfo
-    scrollHeight.value = (screenHeight - statusBarHeight - data.height + sysinfo.safeAreaInsets.top) + 'px';
-    // #endif
-
-    // #ifndef MP-WEIXIN
-    scrollHeight.value = sysinfo.safeArea.height - data.height + 'px';
-    // #endif
-
+    headerHeight.value = data.height;
     nextTick();
   })
 };

@@ -10,7 +10,7 @@
           {{item.title}}
         </view>
         <view class="u-p-l-10 u-p-r-20 right">
-          <text>{{item.content.join(";")}}</text>
+          <text>{{item.content.length>0?item.content.join(";"):'无合冲关系'}}</text>
         </view>
       </view>
     </view>
@@ -20,7 +20,7 @@
 </template>
 
 <script setup>
-import {ref,computed} from "vue"
+import {computed, ref} from "vue"
 import {useDetailStore} from "@/store/detail";
 import YxPillarRelation from "@/yxbug-cn/yx-pillar-relation/yx-pillar-relation";
 import {PILLAR_FIELD} from "@/config/map";

@@ -1,6 +1,5 @@
 <template>
   <view>
-    <!-- bgColor="transparent" -->
     <yx-sheet :margin="[0, 0]" :padding="[0, 0]" :round="3" :shadow="2">
       <tabel-view></tabel-view>
     </yx-sheet>

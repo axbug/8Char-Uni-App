@@ -54,10 +54,7 @@ function Computed() {
     option.value.loading = false;
     uni.hideLoading();
     setTimeout(() => {
-      uni.showToast({
-        title: "网络请求失败！",
-        icon: "none"
-      })
+      uni.$u.toast("网络请求失败！")
     }, 1000)
   })
 }

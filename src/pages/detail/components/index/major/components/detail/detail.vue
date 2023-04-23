@@ -34,24 +34,28 @@
             <view
                 v-for="zitem in item"
                 :class="[
+                  'u-m-y-8',
                   `u-font-${cellHideTopWidth}`,
                   `u-type-${zitem.type}`
               ]"
                 class="yx-text-weight-b"
-            >{{ zitem.label }}
+                @click="showTips('relation',zitem.label[1])"
+            >{{ zitem.label[0] }}
             </view>
           </view>
         </template>
       </view>
     </view>
 
-    <yx-sheet :margin="[0, 0]" :padding="[20, 10]">
-
-      <view v-for="item in bottomDetail">
-        <view class="u-flex u-flex-1">
+    <yx-sheet :margin="[0, 0]" :padding="[20, 0]">
+      <view v-for="(item,index) in bottomDetail">
+        <view class="u-flex" style="align-items: stretch;">
           <template v-for="(ditem, dindex) in item.data">
-            <view :class="{ 'yx-border-left': dindex === 4 }" :style="{ width: cellItemWidth }"
-                  class="u-text-center u-p-y-8">
+            <view :class="[
+                 index===0?'u-p-t-20':'',
+                 index===3?'u-p-b-20':'',
+                 dindex === 4 ? 'yx-border-left':'',
+            ]" :style="{ width: cellItemWidth }" class="u-text-center u-p-y-8">
               <view class="u-font-20 u-col-center u-row-center yx-text-weight-b" @click="showTips(item.type,ditem)">{{ ditem }}</view>
             </view>
           </template>
@@ -140,9 +144,10 @@ const hideList = computed(()=>{
   function transform(li){
     const lis = [];
     for(let label of li){
+      const relation = getRelation(label)
       lis.push({
         type:getElAttr(label),
-        label:label + SHI_SHEN_SIMPLIFIE[getRelation(label)]
+        label:[label + SHI_SHEN_SIMPLIFIE[getRelation(label)],relation]
       })
     }
     return lis;
@@ -191,10 +196,10 @@ const bottomDetail = computed(()=>{
       let tIndex = 0;
       const { lunar } = tendStore.currentLunar
       if(i === 0){
-        bIndex = LunarUtil.ZHI.indexOf(pillar[1]) !== -1 ? LunarUtil.ZHI.indexOf(pillar[1]) - 1 : null
+        bIndex = LunarUtil.ZHI.includes(pillar[1])? LunarUtil.ZHI.indexOf(pillar[1]) - 1 : null
 
         t = pillar[0]
-        tIndex = LunarUtil.GAN.indexOf(pillar[0]) !== -1 ? LunarUtil.ZHI.indexOf(pillar[1]) - 1 : null
+        tIndex = LunarUtil.GAN.includes(pillar[0]) ? LunarUtil.ZHI.indexOf(pillar[1]) - 1 : null
 
       }else if(i === 1){
         bIndex = lunar.getYearZhiIndexByLiChun()

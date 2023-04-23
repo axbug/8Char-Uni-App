@@ -1,4 +1,5 @@
 import {defineStore} from 'pinia';
+import {timeFormat} from "@/utils/transform";
 
 const DEFAULT_TEMPLATE_FILL = {year: "",month: "",day: "",time: "",}
 
@@ -6,7 +7,7 @@ export const useDetailStore = defineStore('detail', {
     state: () => {
         return {
             realname: "",
-            gender: 0,
+            gender: 1,
             timestamp: null,
             sect:0,
             datetime: {
@@ -73,7 +74,7 @@ export const useDetailStore = defineStore('detail', {
         },
         defaultPayload(state){
             return {
-                datetime: uni.$u.timeFormat(new Date(state.timestamp),'yyyy-mm-dd hh:MM:ss'),
+                datetime: timeFormat(new Date(state.timestamp),'yyyy-mm-dd hh:MM:ss'),
                 gender: state.gender,
                 sect: state.sect,
             }
